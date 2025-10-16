@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Mail, KeyRound, LogIn } from 'lucide-vue-next'
 
@@ -71,12 +71,33 @@ const loading = ref(false)
 
 function handleLogin() {
     if (!email.value || !password.value) return
+    if (remember.value) {
+        localStorage.setItem('email', email.value)
+        localStorage.setItem('password', password.value)
+        localStorage.setItem('remember', 'true')
+    } else {
+        localStorage.removeItem('email')
+        localStorage.removeItem('password')
+        localStorage.removeItem('remember')
+    }
+    // Giả lập đăng nhập
     loading.value = true
     setTimeout(() => {
         loading.value = false
         router.push('/')
     }, 1000)
 }
+
+onMounted(() => {
+    const saveEmail = localStorage.getItem('email')
+    const savePassword = localStorage.getItem('password')
+    const saveRemember = localStorage.getItem('remember')
+    if(saveEmail && savePassword) {
+        email.value = saveEmail
+        password.value = savePassword
+        remember.value = saveRemember === 'true'
+    }
+})
 </script>
 
 <style scoped>

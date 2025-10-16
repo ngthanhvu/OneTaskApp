@@ -4,7 +4,7 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold">👋 {{ greeting }}, Vũ!</h1>
-                <p class="text-base-content/70">
+                <p class="text-base-content/70 sm:text-lg">
                     Hôm nay là <span class="font-medium">{{ todayFormatted }}</span>
                 </p>
             </div>

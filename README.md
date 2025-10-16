@@ -67,6 +67,8 @@ one-app
 ├─ index.html
 ├─ package.json
 ├─ public
+│  ├─ app.png
+│  ├─ image.png
 │  └─ vite.svg
 ├─ README.md
 ├─ src
@@ -76,18 +78,22 @@ one-app
 │  ├─ components
 │  │  ├─ Navbar.vue
 │  │  ├─ Sidebar.vue
-│  │  └─ tasks
-│  │     ├─ TaskFilterBar.vue
-│  │     ├─ TaskForm.vue
-│  │     ├─ TaskItem.vue
-│  │     └─ TaskList.vue
+│  │  ├─ tasks
+│  │  │  ├─ TaskFilterBar.vue
+│  │  │  ├─ TaskForm.vue
+│  │  │  ├─ TaskItem.vue
+│  │  │  └─ TaskList.vue
+│  │  └─ ui
+│  │     ├─ ConfirmDialog.vue
+│  │     ├─ EmptyState.vue
+│  │     └─ Modal.vue
 │  ├─ layouts
 │  │  └─ MainLayout.vue
 │  ├─ main.ts
 │  ├─ pages
-│  │  ├─ About.vue
 │  │  ├─ auth
-│  │  │  └─ Login.vue
+│  │  │  ├─ Login.vue
+│  │  │  └─ Profile.vue
 │  │  ├─ Home.vue
 │  │  └─ tasks
 │  │     ├─ TaskDetail.vue

@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { reactive, ref, watchEffect } from 'vue'
 const props = defineProps<{ task?: any }>()
-const emit = defineEmits(['submit'])
+const emit = defineEmits(['submit', 'cancel'])
 
 const form = reactive({
     id: props.task?.id || null,

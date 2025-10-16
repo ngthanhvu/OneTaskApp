@@ -193,6 +193,10 @@ interface Task {
     date: string
     done: boolean
     description?: string
+    // @ts-ignore add-on fields
+    priority?: 'low' | 'medium' | 'high'
+    // @ts-ignore add-on fields
+    tags?: string[]
 }
 
 const tasks = reactive<Task[]>([
@@ -218,7 +222,7 @@ function toLocalYMD(date: Date) {
     return `${y}-${m}-${d}`
 }
 function fromYMD(ymd: string) {
-    const [y, m, d] = ymd.split('-').map(Number)
+    const [y, m, d] = ymd.split('-').map(Number) as [number, number, number]
     return new Date(y, (m || 1) - 1, d || 1)
 }
 

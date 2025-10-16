@@ -1,5 +1,5 @@
 <template>
-    <div class="mx-auto max-w-2xl bg-base-100 rounded-2xl shadow-md border border-base-300 p-5 sm:p-8 space-y-6 sm:space-y-8">
+    <div class="mx-auto bg-base-100 rounded-2xl shadow-md border border-base-300 p-5 sm:p-8 space-y-6 sm:space-y-8">
         <!-- Header -->
         <div>
             <h1 class="text-2xl sm:text-3xl font-bold mb-1">Profile</h1>

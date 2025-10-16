@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { LayoutDashboard, DoorClosedIcon, CalendarCheck2, User, Cog} from 'lucide-vue-next'
+import { LayoutDashboard, DoorClosedIcon, CalendarCheck2, Cog} from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import router from '../router'
 

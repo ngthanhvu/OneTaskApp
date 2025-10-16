@@ -1,22 +1,50 @@
 <template>
     <div class="mx-auto space-y-10">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="text-2xl font-bold">Tất cả Task</h1>
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <LayoutList class="w-5 h-5" />
+                Tất cả Task
+            </h1>
             <div class="flex items-center gap-2">
                 <TaskFilterBar v-model="filter" />
-                <button class="btn btn-primary" @click="openForm()">+ Thêm task</button>
+                <button class="btn btn-primary gap-2" @click="openForm()">
+                    <Plus class="w-4 h-4" />
+                    Thêm task
+                </button>
             </div>
         </div>
 
-        <TaskList :tasks="filteredTasks" @edit="openForm" @delete="deleteTask" @view="openDetail" />
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="font-semibold truncate">Chưa làm</h3>
+                    <span class="badge badge-ghost shrink-0">{{ backlog.length }}</span>
+                </div>
+                <TaskList :tasks="backlog" @edit="openForm" @delete="deleteTask" @view="openDetail"
+                    @update="updateTask" @status-change="updateTask" />
+            </div>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="font-semibold truncate">Đang làm</h3>
+                    <span class="badge badge-info badge-outline shrink-0">{{ inProgress.length }}</span>
+                </div>
+                <TaskList :tasks="inProgress" @edit="openForm" @delete="deleteTask" @view="openDetail"
+                    @update="updateTask" @status-change="updateTask" />
+            </div>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="font-semibold truncate">Đã làm</h3>
+                    <span class="badge badge-success badge-outline shrink-0">{{ doneList.length }}</span>
+                </div>
+                <TaskList :tasks="doneList" @edit="openForm" @delete="deleteTask" @view="openDetail"
+                    @update="updateTask" @status-change="updateTask" />
+            </div>
+        </div>
 
         <!-- Modal form -->
         <dialog ref="modal" class="modal">
             <div class="modal-box">
                 <TaskForm :task="currentTask" @submit="saveTask" @cancel="closeForm" />
-                <div class="modal-action">
-                    <button class="btn" @click="closeForm">Đóng</button>
-                </div>
             </div>
         </dialog>
 
@@ -24,7 +52,10 @@
         <dialog ref="detailModal" class="modal">
             <div class="modal-box w-full max-w-2xl" v-if="detailTask">
                 <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-bold text-lg">Chi tiết Task</h3>
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <FileText class="w-4 h-4" />
+                        Chi tiết Task
+                    </h3>
                     <button class="btn btn-sm btn-ghost" @click="closeDetail">✖</button>
                 </div>
                 <div class="space-y-3">
@@ -57,13 +88,14 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
+import { LayoutList, Plus, FileText } from 'lucide-vue-next'
 import TaskList from '../../components/tasks/TaskList.vue'
 import TaskForm from '../../components/tasks/TaskForm.vue'
 import TaskFilterBar from '../../components/tasks/TaskFilterBar.vue'
 
 const tasks = reactive<any[]>([
-    { id: 1, title: 'Viết báo cáo', date: '2025-10-16', done: false },
-    { id: 2, title: 'Học Vue 3 + DaisyUI', date: '2025-10-17', done: true },
+    { id: 1, title: 'Viết báo cáo', date: '2025-10-16', done: false, status: 0, priority: 'high', tags: ['work'] },
+    { id: 2, title: 'Học Vue 3 + DaisyUI', date: '2025-10-17', done: true, status: 2, priority: 'medium', tags: ['learn'] },
 ])
 const modal = ref<HTMLDialogElement | null>(null)
 const currentTask = ref<any>(null)
@@ -77,6 +109,9 @@ const filteredTasks = computed(() => {
     if (filter.value === 'todo') return tasks.filter(t => !t.done)
     return tasks
 })
+const backlog = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 0))
+const inProgress = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 1))
+const doneList = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 2))
 
 function openForm(task?: any) {
     currentTask.value = task ? { ...task } : null
@@ -91,6 +126,7 @@ function saveTask(task: any) {
         if (index > -1) tasks[index] = task
     } else {
         task.id = Date.now()
+        if (task.status == null) task.status = 0
         tasks.push(task)
     }
     closeForm()
@@ -106,5 +142,12 @@ function openDetail(task: any) {
 }
 function closeDetail() {
     detailModal.value?.close()
+}
+
+function updateTask(updated: any) {
+    const index = tasks.findIndex(t => t.id === updated.id)
+    if (index > -1) {
+        tasks[index] = { ...tasks[index], ...updated }
+    }
 }
 </script>

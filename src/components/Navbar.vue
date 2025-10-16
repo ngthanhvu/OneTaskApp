@@ -13,7 +13,7 @@
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
                     <div class="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                        <img src="https://i.pravatar.cc/100?img=13" />
+                        <img src="/image.png" alt="Profile photo"/>
                     </div>
                 </div>
             </div>

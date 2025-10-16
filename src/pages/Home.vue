@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold">👋 Xin chào, Vũ!</h1>
+                <h1 class="text-3xl font-bold">👋 {{ greeting }}, Vũ!</h1>
                 <p class="text-base-content/70">
                     Hôm nay là <span class="font-medium">{{ todayFormatted }}</span>
                 </p>
@@ -55,11 +55,23 @@
 
             <!-- Cột danh sách task -->
             <div class="space-y-4">
-                <div class="flex items-center space-x-2 mb-2">
+                <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
                     <LayoutList class="w-5 h-5" />
-                    <h2 class="text-xl font-semibold">
-                        Công việc ngày {{ selectedDateDisplay }}
-                    </h2>
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                        <h2 class="text-xl font-semibold">Công việc ngày {{ selectedDateDisplay }}</h2>
+                        <div class="hidden sm:flex items-center gap-1 overflow-x-auto whitespace-nowrap max-w-[200px] sm:max-w-[260px] md:max-w-[340px]">
+                            <span class="badge badge-ghost badge-xs" v-for="t in tagOptions" :key="t" @click="toggleTagFilter(t)" :class="{ 'badge-primary': activeTags.includes(t) }">{{ t }}</span>
+                        </div>
+                    </div>
+                    <form class="flex items-center gap-2 w-full sm:w-auto" @submit.prevent="quickAdd()">
+                        <input v-model="quickTitle" class="input input-sm input-bordered w-full sm:w-52" placeholder="Thêm nhanh..." />
+                        <select v-model="quickPriority" class="select select-bordered select-sm">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                        <button class="btn btn-sm btn-primary">Thêm</button>
+                    </form>
                 </div>
 
                 <div v-if="tasksOfSelected.length" class="space-y-2">
@@ -70,6 +82,16 @@
                             <span :class="{ 'line-through text-base-content/50': task.done }">
                                 {{ task.title }}
                             </span>
+                            <span class="badge badge-sm" :class="task.done ? 'badge-success' : 'badge-warning'">
+                                {{ task.done ? 'Đã xong' : 'Chưa xong' }}
+                            </span>
+                            <span v-if="task.priority" class="badge badge-sm"
+                                :class="task.priority === 'high' ? 'badge-error' : (task.priority === 'low' ? 'badge-ghost' : 'badge-info')">
+                                {{ task.priority === 'high' ? 'High' : task.priority === 'low' ? 'Low' : 'Medium' }}
+                            </span>
+                            <div v-if="task.tags?.length" class="hidden md:flex items-center gap-1">
+                                <span v-for="t in task.tags" :key="t" class="badge badge-ghost badge-xs">{{ t }}</span>
+                            </div>
                         </div>
                         <button class="btn btn-xs btn-outline btn-primary" @click="openDetail(task)">
                             Xem
@@ -112,7 +134,7 @@
                                 {{ task.title }}
                             </span>
                         </div>
-                        <button class="link link-primary text-sm" @click="openDetail(task)">Mở</button>
+                        <button class="btn btn-outline btn-primary btn-xs" @click="openDetail(task)">Mở</button>
                     </li>
                 </ul>
             </div>
@@ -155,7 +177,7 @@
                     </div>
                 </div>
                 <div class="modal-action">
-                    <button class="btn" @click="closeDetail">Đóng</button>
+                    <button class="btn btn-outline" @click="closeDetail">Đóng</button>
                 </div>
             </div>
         </dialog>
@@ -179,7 +201,28 @@ const tasks = reactive<Task[]>([
     { id: 3, title: 'Dọn dẹp workspace', date: '2025-10-17', done: false, description: 'Sắp xếp lại code folder' },
 ])
 
-const today = new Date().toISOString().slice(0, 10)
+function getGreetingByHour(date: Date) {
+    const hour = date.getHours()
+    if (hour < 11) return 'Chào buổi sáng'
+    if (hour < 14) return 'Chào buổi trưa'
+    if (hour < 18) return 'Chào buổi chiều'
+    return 'Chào buổi tối'
+}
+
+const greeting = ref<string>(getGreetingByHour(new Date()))
+
+function toLocalYMD(date: Date) {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+}
+function fromYMD(ymd: string) {
+    const [y, m, d] = ymd.split('-').map(Number)
+    return new Date(y, (m || 1) - 1, d || 1)
+}
+
+const today = toLocalYMD(new Date())
 const todayFormatted = new Date().toLocaleDateString('vi-VN', {
     weekday: 'long',
     day: 'numeric',
@@ -196,29 +239,57 @@ const donePercent = computed(() =>
 const todayTasks = computed(() => tasks.filter(t => t.date === today))
 const recentTasks = computed(() => [...tasks].sort((a, b) => b.id - a.id).slice(0, 5))
 
+// Quick add & filters
+const quickTitle = ref('')
+const quickPriority = ref<'low' | 'medium' | 'high'>('medium')
+const tagOptions = ['work', 'home', 'learn'] as const
+const activeTags = ref<string[]>([])
+function toggleTagFilter(tag: string) {
+    const i = activeTags.value.indexOf(tag)
+    if (i > -1) activeTags.value.splice(i, 1)
+    else activeTags.value.push(tag)
+}
+function quickAdd() {
+    if (!quickTitle.value.trim()) return
+    const newTask: Task = {
+        id: Date.now(),
+        title: quickTitle.value.trim(),
+        date: selectedDate.value,
+        done: false,
+        description: '',
+        // @ts-ignore add-on fields
+        priority: quickPriority.value,
+        // @ts-ignore add-on fields
+        tags: [...activeTags.value],
+    }
+    // @ts-ignore extend
+    tasks.push(newTask as any)
+    quickTitle.value = ''
+}
+
 const selectedDate = ref<string>(today)
-const selectedDateDisplay = computed(() =>
-    new Date(selectedDate.value).toLocaleDateString('vi-VN')
-)
+const selectedDateDisplay = computed(() => fromYMD(selectedDate.value).toLocaleDateString('vi-VN'))
 const calendarAttrs = computed(() => [
     {
         key: 'today',
-        highlight: true,
         dates: new Date(),
+        highlight: { color: 'info', fillMode: 'light' },
     },
     {
         key: 'has-task',
-        dates: tasks.map(t => new Date(t.date)),
+        dates: tasks.map(t => fromYMD(t.date)),
         dot: { color: 'var(--p)' },
     },
 ])
 
 function onDayClick(day: any) {
-    selectedDate.value = day.date.toISOString().slice(0, 10)
+    selectedDate.value = toLocalYMD(day.date)
 }
-const tasksOfSelected = computed(() =>
-    tasks.filter(t => t.date === selectedDate.value)
-)
+const tasksOfSelected = computed(() => {
+    const base = tasks.filter(t => t.date === selectedDate.value)
+    if (!activeTags.value.length) return base
+    return base.filter((t: any) => Array.isArray((t as any).tags) && (t as any).tags.some((x: string) => activeTags.value.includes(x)))
+})
 
 const detailModal = ref<HTMLDialogElement | null>(null)
 const detailTask = ref<Task | null>(null)
@@ -232,11 +303,48 @@ function closeDetail() {
 </script>
 
 <style scoped>
-.vc-container {
+/* Sync VCalendar with DaisyUI theme in both light/dark */
+:deep(.vc-container) {
     --vc-primary-600: hsl(var(--p));
+    --vc-primary-500: hsl(var(--p));
     --vc-accent-600: hsl(var(--a));
     background-color: hsl(var(--b1));
     color: hsl(var(--bc));
     border-radius: 0.75rem;
+    border: 1px solid hsl(var(--b3));
+}
+:deep(.vc-header),
+:deep(.vc-weeks) {
+    background-color: transparent;
+}
+:deep(.vc-title),
+:deep(.vc-nav-title),
+:deep(.vc-header .vc-title) {
+    color: hsl(var(--bc));
+    opacity: 0.9;
+}
+:deep(.vc-weekday) {
+    color: hsl(var(--bc));
+    opacity: 0.7;
+}
+:deep(.vc-day) {
+    background-color: transparent;
+}
+:deep(.vc-day.is-today .vc-day-content) {
+    border-color: hsl(var(--in)); /* info */
+    background-color: color-mix(in oklab, hsl(var(--in)) 15%, transparent);
+    color: #605DFF;
+}
+:deep(.vc-highlight-bg-solid) {
+    background-color: hsl(var(--p));
+}
+:deep(.vc-highlight-content-solid) {
+    color: hsl(var(--pc));
+}
+:deep(.vc-highlight-bg-solid) {
+    background-color: #605DFF;
+}
+:deep(.vc-highlight-content-solid) {
+    color: #fff;
 }
 </style>

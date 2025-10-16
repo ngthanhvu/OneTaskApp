@@ -22,6 +22,18 @@
                     <option :value="true">Đã hoàn thành</option>
                 </select>
             </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text">Ưu tiên</span></label>
+                <select v-model="form.priority" class="select select-bordered w-full">
+                    <option value="low">Thấp</option>
+                    <option value="medium">Trung bình</option>
+                    <option value="high">Cao</option>
+                </select>
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text">Tags (phân tách bằng dấu phẩy)</span></label>
+                <input v-model="tagsInput" class="input input-bordered w-full" placeholder="ví dụ: work, urgent" />
+            </div>
         </div>
 
         <!-- Description -->
@@ -41,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref, watchEffect } from 'vue'
 const props = defineProps<{ task?: any }>()
 const emit = defineEmits(['submit'])
 
@@ -51,6 +63,16 @@ const form = reactive({
     date: props.task?.date || new Date().toISOString().slice(0, 10),
     description: props.task?.description || '',
     done: props.task?.done || false,
+    priority: props.task?.priority || 'medium',
+    tags: (props.task?.tags as string[] | undefined) || [],
+})
+
+const tagsInput = ref<string>(Array.isArray(form.tags) ? form.tags.join(', ') : '')
+watchEffect(() => {
+    form.tags = tagsInput.value
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
 })
 
 function submitForm() {

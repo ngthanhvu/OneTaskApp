@@ -1,53 +1,59 @@
 <template>
-    <div class="h-screen flex items-center justify-center bg-base-200 overflow-hidden">
-        <div class="card w-full max-w-lg shadow-xl bg-base-100">
-            <div class="card-body">
-                <!-- Logo / Title -->
-                <h2 class="text-3xl font-bold text-center mb-6">
-                    <span class="text-primary">OneApp</span> Admin
-                </h2>
+    <div class="min-h-screen flex items-center justify-center bg-base-200">
+        <div class="card w-full max-w-md bg-base-100 shadow-xl rounded-2xl p-8">
+            <!-- Header -->
+            <h2 class="text-3xl font-bold text-center mb-8">
+                <span class="text-primary">OneApp</span> Admin
+            </h2>
 
-                <!-- Login form -->
-                <form @submit.prevent="handleLogin" class="space-y-5">
-                    <!-- Email -->
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text font-semibold">Email</span>
-                        </label>
-                        <input type="email" v-model="email" placeholder="admin@example.com"
-                            class="input input-bordered w-full" />
+            <!-- Form -->
+            <form @submit.prevent="handleLogin" class="space-y-6">
+                <!-- Email -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Email</span>
+                    </label>
+                    <div class="relative">
+                        <Mail class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
+                        <input v-model="email" type="email" placeholder="admin@example.com"
+                            class="input input-bordered w-full pl-10" />
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Password</span>
+                    </label>
+                    <div class="relative">
+                        <KeyRound class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
+                        <input v-model="password" type="password" placeholder="••••••••"
+                            class="input input-bordered w-full pl-10" />
                     </div>
 
-                    <!-- Password -->
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text font-semibold">Password</span>
+                    <!-- Remember + Forgot -->
+                    <div class="flex justify-between items-center mt-3 text-sm">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" v-model="remember" class="checkbox checkbox-sm" />
+                            <span>Remember me</span>
                         </label>
-                        <input type="password" v-model="password" placeholder="••••••••"
-                            class="input input-bordered w-full" />
-                        <label class="label flex justify-between text-sm mt-3">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" v-model="remember" class="checkbox checkbox-sm" />
-                                <span>Remember me</span>
-                            </label>
-                            <a href="#" class="text-primary hover:underline">Forgot password?</a>
-                        </label>
+                        <a href="#" class="text-primary hover:underline">Forgot password?</a>
                     </div>
+                </div>
 
-                    <!-- Submit -->
-                    <div class="form-control mt-3">
-                        <button type="submit" class="btn btn-primary w-full" :disabled="loading">
-                            <span v-if="!loading">Login</span>
-                            <span v-else class="loading loading-spinner"></span>
-                        </button>
-                    </div>
-                </form>
+                <!-- Submit -->
+                <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2"
+                    :disabled="loading">
+                    <LogIn class="w-5 h-5" />
+                    <span v-if="!loading">Login</span>
+                    <span v-else class="loading loading-spinner loading-sm"></span>
+                </button>
+            </form>
 
-                <!-- Footer -->
-                <p class="text-center text-sm mt-6 text-base-content/70">
-                    ©{{ new Date().getFullYear() }} OneApp. All rights reserved.
-                </p>
-            </div>
+            <!-- Footer -->
+            <p class="text-center text-sm mt-8 text-base-content/70">
+                © {{ new Date().getFullYear() }} OneApp. All rights reserved.
+            </p>
         </div>
     </div>
 </template>
@@ -55,6 +61,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Mail, KeyRound, LogIn } from 'lucide-vue-next'
 
 const router = useRouter()
 const email = ref('')
@@ -63,11 +70,18 @@ const remember = ref(false)
 const loading = ref(false)
 
 function handleLogin() {
+    if (!email.value || !password.value) return
     loading.value = true
     setTimeout(() => {
         loading.value = false
-        // giả lập đăng nhập thành công
         router.push('/')
     }, 1000)
 }
 </script>
+
+<style scoped>
+/* Nền sáng tối tự động dựa theme DaisyUI */
+.card {
+    transition: all 0.3s ease;
+}
+</style>

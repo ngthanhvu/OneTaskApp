@@ -1,7 +1,8 @@
 <template>
-    <div v-if="tasks.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div v-if="tasks.length" class="grid grid-cols-1 gap-3">
         <TaskItem v-for="task in tasks" :key="task.id" :task="task" @edit="$emit('edit', task)"
-            @delete="$emit('delete', task)" @view="$emit('view', task)" />
+            @delete="$emit('delete', task)" @view="$emit('view', task)" @update="$emit('update', $event)"
+            @status-change="$emit('status-change', $event)" />
     </div>
     <EmptyState v-else text="Chưa có task nào" />
 </template>
@@ -11,5 +12,5 @@ import TaskItem from './TaskItem.vue'
 import EmptyState from '../ui/EmptyState.vue'
 
 defineProps<{ tasks: any[] }>()
-defineEmits(['edit', 'delete', 'view'])
+defineEmits(['edit', 'delete', 'view', 'update', 'status-change'])
 </script>

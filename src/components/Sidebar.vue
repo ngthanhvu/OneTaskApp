@@ -20,6 +20,13 @@
                 <CalendarCheck2 class="w-5 h-5" />
                 <span>Task</span>
             </RouterLink>
+
+            <RouterLink to="/profile"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
+                :class="{ 'bg-primary text-primary-content': $route.path === '/profile' }">
+                <Cog />
+                <span>Settings</span>
+            </RouterLink>
         </nav>
 
         <div class="p-4 border-t border-base-300">
@@ -32,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { LayoutDashboard, DoorClosedIcon, CalendarCheck2 } from 'lucide-vue-next'
+import { LayoutDashboard, DoorClosedIcon, CalendarCheck2, User, Cog} from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import router from '../router'
 

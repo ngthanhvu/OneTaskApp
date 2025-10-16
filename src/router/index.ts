@@ -8,6 +8,7 @@ import TaskToday from '../pages/tasks/TaskToday.vue';
 import TaskDetail from '../pages/tasks/TaskDetail.vue';
 
 import Login from '../pages/auth/Login.vue';
+import Profile from '../pages/auth/Profile.vue';
 
 const routes = [
     {
@@ -18,6 +19,11 @@ const routes = [
                 path: '',
                 name: 'home',
                 component: Home
+            },
+            {
+                path: 'profile',
+                name: 'profile',
+                component: Profile
             }
         ]
     },

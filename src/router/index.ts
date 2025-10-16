@@ -2,7 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 import MainLayout from '../layouts/MainLayout.vue';
 
 import Home from '../pages/Home.vue';
-import About from '../pages/About.vue';
+
+import TaskPage from '../pages/tasks/TaskPage.vue';
+import TaskToday from '../pages/tasks/TaskToday.vue';
+import TaskDetail from '../pages/tasks/TaskDetail.vue';
 
 import Login from '../pages/auth/Login.vue';
 
@@ -15,13 +18,17 @@ const routes = [
                 path: '',
                 name: 'home',
                 component: Home
-            },
-            {
-                path: '/about',
-                name: 'about',
-                component: About
             }
         ]
+    },
+    {
+        path: '/tasks',
+        component: MainLayout,
+        children: [
+            { path: '', name: 'TaskPage', component: TaskPage },
+            { path: 'today', name: 'TaskToday', component: TaskToday },
+            { path: ':id', name: 'TaskDetail', component: TaskDetail },
+        ],
     },
     {
         path: '/login',

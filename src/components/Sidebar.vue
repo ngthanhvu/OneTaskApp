@@ -14,17 +14,10 @@
                 <span>Dashboard</span>
             </RouterLink>
 
-            <RouterLink to="/about"
+            <RouterLink to="/tasks"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
-                :class="{ 'bg-primary text-primary-content': $route.path === '/about' }">
-                <BadgeQuestionMarkIcon class="w-5 h-5" />
-                <span>About</span>
-            </RouterLink>
-
-            <RouterLink to="/task"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
-                :class="{ 'bg-primary text-primary-content': $route.path === '/task' }">
-                <LayoutGrid class="w-5 h-5" />
+                :class="{ 'bg-primary text-primary-content': $route.path === '/tasks' }">
+                <CalendarCheck2 class="w-5 h-5" />
                 <span>Task</span>
             </RouterLink>
         </nav>
@@ -39,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { LayoutDashboard, BadgeQuestionMarkIcon, DoorClosedIcon, LayoutGrid } from 'lucide-vue-next'
+import { LayoutDashboard, DoorClosedIcon, CalendarCheck2 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import router from '../router'
 

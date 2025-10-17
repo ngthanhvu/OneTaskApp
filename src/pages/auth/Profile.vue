@@ -25,9 +25,9 @@
         <div class="space-y-3">
             <h2 class="text-lg font-semibold mb-3">Contact</h2>
             <label class="form-control w-full">
-                <span class="label-text font-medium mb-1">Full name *</span>
+                <span class="label-text font-medium">Full name <span class="text-red-500">*</span></span>
                 <input v-model="fullName" type="text" placeholder="Type your name here"
-                    class="input input-bordered w-full" />
+                    class="input input-bordered w-full mt-2 focus:outline-none focus:ring-1 focus:ring-primary" />
             </label>
         </div>
 
@@ -35,14 +35,21 @@
         <div class="space-y-3">
             <h2 class="text-lg font-semibold mb-3">Email address</h2>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-base-200 rounded-xl p-3">
-                <p class="truncate">{{ email }}</p>
-                <button class="btn btn-outline btn-sm w-full sm:w-auto" @click="changeEmail">Change email</button>
+                <input v-model="email" type="email" :readonly="!isEditingEmail" class="input w-full bg-transparent focus:outline-none focus:ring-1 focus:ring-primary px-3 sm:p-2"
+                    :class="{ 'input-bordered': isEditingEmail, 'p-0 sm:p-2': !isEditingEmail }" />
+                <button class="btn btn-outline btn-md w-full sm:w-auto" @click="toggleEmailEdit">{{ isEditingEmail ? 'Save' : 'Change' }}</button>
             </div>
         </div>
 
         <!-- Actions -->
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t border-base-200">
-            <button class="btn btn-outline w-full sm:w-auto">Cancel</button>
+            <!-- Nút Logout cho mobile -->
+            <button class="btn btn-outline btn-error w-full sm:hidden" @click="handleLogout">
+                <LogOut class="w-4 h-4" />
+                Logout
+            </button>
+            <!-- Nút Cancel cho desktop -->
+            <button class="btn btn-outline hidden sm:inline-flex w-full sm:w-auto">Cancel</button>
             <button class="btn btn-primary w-full sm:w-auto">
                 <Save />
                 Save changes
@@ -52,12 +59,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Save } from 'lucide-vue-next'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { Save, LogOut } from 'lucide-vue-next';
+
+const router = useRouter();
 
 const fullName = ref('')
 const email = ref('john.deere@email.com')
 const photoUrl = ref<string | null>(null)
+const isEditingEmail = ref(false)
 
 function uploadPhoto() {
     // Giả lập upload
@@ -75,8 +86,11 @@ function uploadPhoto() {
     input.click()
 }
 
-function changeEmail() {
-    const newEmail = prompt('Nhập email mới:', email.value)
-    if (newEmail) email.value = newEmail
+function toggleEmailEdit() {
+    isEditingEmail.value = !isEditingEmail.value
+}
+
+function handleLogout() {
+    router.push('/login');
 }
 </script>

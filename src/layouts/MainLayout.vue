@@ -20,7 +20,7 @@
                 <ListCheck class="size-[1.2em]" /><span class="dock-label">Tasks</span>
             </router-link>
             <router-link to="/tasks/today" :class="[{ 'dock-active': $route.name === 'TaskToday' }]">
-                <CalendarDays class="size-[1.2em]" /><span class="dock-label">Hôm nay</span>
+                <CalendarDays class="size-[1.2em]" /><span class="dock-label">To day</span>
             </router-link>
             <router-link to="/profile" :class="[{ 'dock-active': $route.name === 'profile' }]">
                 <User class="size-[1.2em]" /><span class="dock-label">Profile</span>

@@ -1,13 +1,13 @@
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-base-200">
-        <div class="card w-full max-w-md bg-base-100 shadow-xl rounded-2xl p-8">
+    <div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+        <div class="card w-full max-w-md bg-base-100 shadow-xl rounded-2xl p-6 sm:p-8">
             <!-- Header -->
             <h2 class="text-3xl font-bold text-center mb-8">
                 <span class="text-primary">OneApp</span> Admin
             </h2>
 
             <!-- Form -->
-            <form @submit.prevent="handleLogin" class="space-y-6">
+            <form @submit.prevent="handleLogin" class="space-y-4">
                 <!-- Email -->
                 <div class="form-control">
                     <label class="label">
@@ -44,7 +44,7 @@
                 <!-- Submit -->
                 <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2"
                     :disabled="loading">
-                    <LogIn class="w-5 h-5" />
+                    <LogIn v-if="!loading" class="w-5 h-5" />
                     <span v-if="!loading">Login</span>
                     <span v-else class="loading loading-spinner loading-sm"></span>
                 </button>

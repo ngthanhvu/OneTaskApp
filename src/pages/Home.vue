@@ -1,7 +1,7 @@
 <template>
     <div class="mx-auto space-y-10">
         <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="hidden md:flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold">👋 {{ greeting }}, Vũ!</h1>
                 <p class="text-base-content/70 sm:text-lg">
@@ -59,12 +59,16 @@
                     <LayoutList class="w-5 h-5" />
                     <div class="flex items-center gap-2 min-w-0 flex-1">
                         <h2 class="text-xl font-semibold">Công việc ngày {{ selectedDateDisplay }}</h2>
-                        <div class="hidden sm:flex items-center gap-1 overflow-x-auto whitespace-nowrap max-w-[200px] sm:max-w-[260px] md:max-w-[340px]">
-                            <span class="badge badge-ghost badge-xs" v-for="t in tagOptions" :key="t" @click="toggleTagFilter(t)" :class="{ 'badge-primary': activeTags.includes(t) }">{{ t }}</span>
+                        <div
+                            class="hidden sm:flex items-center gap-1 overflow-x-auto whitespace-nowrap max-w-[200px] sm:max-w-[260px] md:max-w-[340px]">
+                            <span class="badge badge-ghost badge-xs" v-for="t in tagOptions" :key="t"
+                                @click="toggleTagFilter(t)" :class="{ 'badge-primary': activeTags.includes(t) }">{{ t
+                                }}</span>
                         </div>
                     </div>
                     <form class="flex items-center gap-2 w-full sm:w-auto" @submit.prevent="quickAdd()">
-                        <input v-model="quickTitle" class="input input-sm input-bordered w-full sm:w-52" placeholder="Thêm nhanh..." />
+                        <input v-model="quickTitle" class="input input-sm input-bordered w-full sm:w-52"
+                            placeholder="Thêm nhanh..." />
                         <select v-model="quickPriority" class="select select-bordered select-sm">
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
@@ -76,21 +80,28 @@
 
                 <div v-if="tasksOfSelected.length" class="space-y-2">
                     <div v-for="task in tasksOfSelected" :key="task.id"
-                        class="p-4 rounded-xl bg-base-100 shadow-sm hover:shadow-md transition border border-base-200 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" v-model="task.done" class="checkbox checkbox-sm" />
-                            <span :class="{ 'line-through text-base-content/50': task.done }">
-                                {{ task.title }}
-                            </span>
-                            <span class="badge badge-sm" :class="task.done ? 'badge-success' : 'badge-warning'">
-                                {{ task.done ? 'Đã xong' : 'Chưa xong' }}
-                            </span>
-                            <span v-if="task.priority" class="badge badge-sm"
-                                :class="task.priority === 'high' ? 'badge-error' : (task.priority === 'low' ? 'badge-ghost' : 'badge-info')">
-                                {{ task.priority === 'high' ? 'High' : task.priority === 'low' ? 'Low' : 'Medium' }}
-                            </span>
-                            <div v-if="task.tags?.length" class="hidden md:flex items-center gap-1">
-                                <span v-for="t in task.tags" :key="t" class="badge badge-ghost badge-xs">{{ t }}</span>
+                        class="p-4 rounded-xl bg-base-100 shadow-sm hover:shadow-md transition border border-base-200 flex justify-between items-start gap-3">
+                        <div class="flex items-start gap-3 min-w-0">
+                            <input type="checkbox" v-model="task.done" class="checkbox checkbox-sm mt-1" />
+                            <div class="min-w-0">
+                                <p class="truncate max-w-[150px] sm:max-w-xs md:max-w-sm"
+                                    :class="{ 'line-through text-base-content/50': task.done }">
+                                    {{ task.title }}
+                                </p>
+                                <div class="flex items-center gap-2 flex-wrap mt-1">
+                                    <span class="badge badge-sm" :class="task.done ? 'badge-success' : 'badge-warning'">
+                                        {{ task.done ? 'Đã xong' : 'Chưa xong' }}
+                                    </span>
+                                    <span v-if="task.priority" class="badge badge-sm"
+                                        :class="task.priority === 'high' ? 'badge-error' : (task.priority === 'low' ? 'badge-ghost' : 'badge-info')">
+                                        {{ task.priority === 'high' ? 'High' : task.priority === 'low' ? 'Low' :
+                                        'Medium' }}
+                                    </span>
+                                    <div v-if="task.tags?.length" class="hidden md:flex items-center gap-1">
+                                        <span v-for="t in task.tags" :key="t" class="badge badge-ghost badge-xs">{{ t
+                                            }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <button class="btn btn-xs btn-outline btn-primary" @click="openDetail(task)">
@@ -142,45 +153,55 @@
 
         <!-- Modal detail -->
         <dialog ref="detailModal" class="modal">
-            <div class="modal-box w-full max-w-2xl" v-if="detailTask">
+            <div class="modal-box w-full max-w-2xl sm:max-w-lg md:max-w-xl lg:max-w-2xl" v-if="detailTask">
+                <!-- Header -->
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="font-bold text-lg">Chi tiết Task</h3>
                     <button class="btn btn-sm btn-ghost" @click="closeDetail">✖</button>
                 </div>
+
                 <div class="space-y-3">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <h4 class="text-xl font-semibold"
+                    <!-- Thông tin tiêu đề và trạng thái -->
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-lg sm:text-xl font-semibold break-words"
                                 :class="{ 'line-through text-base-content/50': detailTask?.done }">
                                 {{ detailTask?.title }}
                             </h4>
-                            <div class="mt-1 flex items-center gap-2">
+                            <div class="mt-1 flex flex-wrap items-center gap-2">
                                 <span class="badge badge-outline">Ngày: {{ detailTask?.date }}</span>
                                 <span class="badge" :class="detailTask?.done ? 'badge-success' : 'badge-warning'">
                                     {{ detailTask?.done ? 'Đã xong' : 'Chưa xong' }}
                                 </span>
                             </div>
                         </div>
-                        <label class="label cursor-pointer gap-2">
-                            <span class="label-text text-sm">
+
+                        <!-- Toggle trạng thái -->
+                        <label class="label cursor-pointer gap-2 sm:justify-end justify-start">
+                            <span class="label-text text-sm text-nowrap">
                                 {{ detailTask?.done ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong' }}
                             </span>
                             <input type="checkbox" v-model="detailTask.done" class="toggle toggle-primary toggle-sm" />
                         </label>
                     </div>
+
+                    <!-- Mô tả -->
                     <div>
                         <h5 class="font-medium mb-1">Mô tả</h5>
-                        <p class="text-base-content/70 whitespace-pre-line" v-if="detailTask?.description">
+                        <p class="text-base-content/70 whitespace-pre-line break-words" v-if="detailTask?.description">
                             {{ detailTask?.description }}
                         </p>
                         <p class="text-base-content/50 italic" v-else>Không có mô tả</p>
                     </div>
                 </div>
+
+                <!-- Footer -->
                 <div class="modal-action">
-                    <button class="btn btn-outline" @click="closeDetail">Đóng</button>
+                    <button class="btn btn-outline w-full sm:w-auto" @click="closeDetail">Đóng</button>
                 </div>
             </div>
         </dialog>
+
     </div>
 </template>
 
@@ -317,37 +338,47 @@ function closeDetail() {
     border-radius: 0.75rem;
     border: 1px solid hsl(var(--b3));
 }
+
 :deep(.vc-header),
 :deep(.vc-weeks) {
     background-color: transparent;
 }
+
 :deep(.vc-title),
 :deep(.vc-nav-title),
 :deep(.vc-header .vc-title) {
     color: hsl(var(--bc));
     opacity: 0.9;
 }
+
 :deep(.vc-weekday) {
     color: hsl(var(--bc));
     opacity: 0.7;
 }
+
 :deep(.vc-day) {
     background-color: transparent;
 }
+
 :deep(.vc-day.is-today .vc-day-content) {
-    border-color: hsl(var(--in)); /* info */
+    border-color: hsl(var(--in));
+    /* info */
     background-color: color-mix(in oklab, hsl(var(--in)) 15%, transparent);
     color: #605DFF;
 }
+
 :deep(.vc-highlight-bg-solid) {
     background-color: hsl(var(--p));
 }
+
 :deep(.vc-highlight-content-solid) {
     color: hsl(var(--pc));
 }
+
 :deep(.vc-highlight-bg-solid) {
     background-color: #605DFF;
 }
+
 :deep(.vc-highlight-content-solid) {
     color: #fff;
 }

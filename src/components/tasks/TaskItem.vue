@@ -1,6 +1,6 @@
 <template>
-    <div
-        class="group p-4 rounded-xl bg-base-100/80 shadow-sm hover:shadow-md border border-base-200 hover:border-base-300 transition-all h-52 flex flex-col justify-between">
+    <div class="group p-4 rounded-xl bg-base-100/80 shadow-sm hover:shadow-md border border-base-200 hover:border-base-300 transition-all 
+        flex flex-col justify-between min-h-[12rem] sm:min-h-[13rem] max-h-[auto]">
         <!-- Nội dung chính -->
         <div>
             <div class="flex items-start justify-between gap-3">
@@ -31,11 +31,11 @@
                 </div>
 
                 <!-- Nút sửa / xoá -->
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                <div class="flex items-center gap-1 transition-opacity shrink-0">
                     <button class="btn btn-ghost btn-xs" title="Sửa" @click="$emit('edit', local)">
                         <Pencil class="w-3 h-3" />
                     </button>
-                    <button class="btn btn-ghost btn-xs text-error" title="Xoá" @click="$emit('delete', local)">
+                    <button class="btn btn-ghost btn-xs text-error" title="Xoá" @click="openConfirm(local)">
                         <Trash2 class="w-3 h-3" />
                     </button>
                 </div>
@@ -45,21 +45,15 @@
             <div v-if="local.status != null" class="mt-3 flex items-center gap-2">
                 <span class="text-xs text-base-content/60">Trạng thái:</span>
                 <div class="flex gap-1">
-                    <button 
-                        class="btn btn-xs" 
-                        :class="local.status === 0 ? 'btn-primary' : 'btn-outline'"
+                    <button class="btn btn-xs" :class="local.status === 0 ? 'btn-primary' : 'btn-outline'"
                         @click="changeStatus(0)">
                         Chưa làm
                     </button>
-                    <button 
-                        class="btn btn-xs" 
-                        :class="local.status === 1 ? 'btn-primary' : 'btn-outline'"
+                    <button class="btn btn-xs" :class="local.status === 1 ? 'btn-primary' : 'btn-outline'"
                         @click="changeStatus(1)">
                         Đang làm
                     </button>
-                    <button 
-                        class="btn btn-xs" 
-                        :class="local.status === 2 ? 'btn-primary' : 'btn-outline'"
+                    <button class="btn btn-xs" :class="local.status === 2 ? 'btn-primary' : 'btn-outline'"
                         @click="changeStatus(2)">
                         Đã làm
                     </button>
@@ -78,31 +72,54 @@
                     @change="$emit('update', local)" />
             </label>
         </div>
+
+        <dialog ref="confirmModal" class="modal">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg text-error">Xác nhận xoá</h3>
+                <p class="py-3 text-sm">Bạn có chắc chắn muốn xoá task này không?</p>
+
+                <div class="modal-action">
+                    <button class="btn btn-outline btn-sm" @click="closeConfirm">Huỷ</button>
+                    <button class="btn btn-error btn-sm" @click="confirmDelete">Xoá</button>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+            </form>
+        </dialog>
     </div>
 </template>
-
 <script setup lang="ts">
-import { reactive, watch, computed } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import { FileText, Pencil, Trash2 } from 'lucide-vue-next'
+
 const props = defineProps<{ task: any }>()
 const emit = defineEmits(['edit', 'delete', 'update', 'view', 'status-change'])
+
 const local = reactive({ ...props.task })
-const descriptionPreview = computed(() => (local as any).description?.trim() || 'Không có mô tả')
-const statusLabel = computed(() => {
-    if (local.status === 1) return 'Đang làm'
-    if (local.status === 2) return 'Đã làm'
-    return 'Chưa làm'
-})
-const priorityLabel = computed(() => {
-    if (local.priority === 'high') return 'High'
-    if (local.priority === 'low') return 'Low'
-    return 'Medium'
-})
-const priorityClass = computed(() => {
-    if (local.priority === 'high') return 'badge-error'
-    if (local.priority === 'low') return 'badge-ghost'
-    return 'badge-info'
-})
+const confirmModal = ref<HTMLDialogElement | null>(null)
+const taskToDelete = ref<any>(null)
+
+function openConfirm(task: any) {
+    taskToDelete.value = task
+    confirmModal.value?.showModal()
+}
+
+function closeConfirm() {
+    confirmModal.value?.close()
+}
+
+function confirmDelete() {
+    if (taskToDelete.value) {
+        emit('delete', taskToDelete.value)
+    }
+    closeConfirm()
+}
+
+const descriptionPreview = computed(() => local.description?.trim() || 'Không có mô tả')
+const statusLabel = computed(() => (local.status === 1 ? 'Đang làm' : local.status === 2 ? 'Đã làm' : 'Chưa làm'))
+const priorityLabel = computed(() => (local.priority === 'high' ? 'High' : local.priority === 'low' ? 'Low' : 'Medium'))
+const priorityClass = computed(() => (local.priority === 'high' ? 'badge-error' : local.priority === 'low' ? 'badge-ghost' : 'badge-info'))
 
 function changeStatus(newStatus: number) {
     local.status = newStatus

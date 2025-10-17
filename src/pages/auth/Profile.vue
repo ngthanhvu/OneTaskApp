@@ -49,7 +49,7 @@
         <!-- Actions -->
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t border-base-200">
             <!-- Nút Logout cho mobile -->
-            <button class="btn btn-outline btn-error w-full sm:hidden" @click="handleLogout">
+            <button class="btn btn-outline btn-error w-full sm:hidden" @click="confirmLogout">
                 <LogOut class="w-4 h-4" />
                 Logout
             </button>
@@ -61,6 +61,8 @@
                 <span v-else class="loading loading-spinner loading-sm"></span>
             </button>
         </div>
+                <ConfirmModal ref="logoutConfirm" title="Xác nhận đăng xuất"
+            message="Bạn có chắc muốn đăng xuất khỏi tài khoản không?" actions="Đăng xuất" type="error" @confirm="handleLogout" />
     </div>
 </template>
 
@@ -74,6 +76,7 @@ import { storeToRefs } from 'pinia';
 import { CircleX } from 'lucide-vue-next';
 import { push } from 'notivue'
 import { useHead } from '@vueuse/head'
+import ConfirmModal from '../../components/common/ConfirmModal.vue'
 
 useHead({
     title: 'Profile | Task Wan',
@@ -87,11 +90,16 @@ const router = useRouter();
 const authStore = useAuthStore();
 const { user, profile } = storeToRefs(authStore)
 
+const logoutConfirm = ref<InstanceType<typeof ConfirmModal> | null>(null)
 const fullName = ref('')
 const email = ref('')
 const photoUrl = ref<string | null>(null)
 const isEditingEmail = ref(false)
 const loading = ref(false)
+
+function confirmLogout() {
+    logoutConfirm.value?.open()
+}
 
 async function uploadPhoto() {
     if (!user.value) return

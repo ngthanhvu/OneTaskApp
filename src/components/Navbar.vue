@@ -32,11 +32,11 @@ import { useAuthStore } from '../stores/authStore';
 import { storeToRefs } from 'pinia';
 
 const authStore = useAuthStore();
-const { profile, profileLoaded } = storeToRefs(authStore)
+const { profile, profileLoaded, user } = storeToRefs(authStore)
 
 const theme = ref<'light' | 'dark'>('light')
 const search = ref('')
-const fullName = ref('')
+const fullName = computed(() => profile.value?.full_name || user.value?.user_metadata?.full_name || '')
 
 const avatarUrl = computed(() => {
     if (!profileLoaded.value) return '/image.png'
@@ -49,8 +49,6 @@ onMounted(async () => {
 
     if (!authStore.user) {
         await authStore.fetchUser()
-    } else {
-        fullName.value = profile.value?.full_name || authStore.user?.user_metadata?.full_name || ''
     }
     await authStore.fetchUserProfile({ force: true })
 })

@@ -165,7 +165,6 @@ useHead({
 })
 
 const tasksStore = useTasksStore()
-const tasks = tasksStore.tasks as unknown as Task[]
 const modal = ref<HTMLDialogElement | null>(null)
 const currentTask = ref<any>(null)
 const detailModal = ref<HTMLDialogElement | null>(null)

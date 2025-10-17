@@ -68,6 +68,7 @@ task-wan
 ├─ package.json
 ├─ public
 │  ├─ app.png
+│  ├─ app.svg
 │  ├─ image.png
 │  └─ vite.svg
 ├─ README.md
@@ -76,6 +77,8 @@ task-wan
 │  ├─ assets
 │  │  └─ vue.svg
 │  ├─ components
+│  │  ├─ common
+│  │  │  └─ ConfirmModal.vue
 │  │  ├─ Navbar.vue
 │  │  ├─ Sidebar.vue
 │  │  ├─ tasks
@@ -115,6 +118,7 @@ task-wan
 ├─ tsconfig.app.json
 ├─ tsconfig.json
 ├─ tsconfig.node.json
+├─ vercel.json
 ├─ vite.config.ts
 └─ yarn.lock
 

@@ -12,6 +12,10 @@ import 'v-calendar/style.css'
 import 'notivue/notification.css'
 import './style.css'
 
+// === PWA register (vite-plugin-pwa) ===
+import { registerSW } from 'virtual:pwa-register'
+
+// Khởi tạo app Vue
 const head = createHead()
 const app = createApp(App)
 const pinia = createPinia()
@@ -24,3 +28,16 @@ app.use(pinia)
 app.use(notivue)
 
 app.mount('#app')
+
+// === Service Worker setup ===
+const updateSW = registerSW({
+    onNeedRefresh() {
+        // Thông báo người dùng khi có bản mới
+        if (confirm('Có bản cập nhật mới. Tải lại trang?')) {
+            updateSW()
+        }
+    },
+    onOfflineReady() {
+        console.log('✅ Ứng dụng TaskWan đã sẵn sàng để dùng offline!')
+    }
+})

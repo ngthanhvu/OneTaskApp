@@ -7,7 +7,14 @@
 body {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
-    background-color: var(--b1);
-    /* DaisyUI primary background */
+    background-color: #ffffff;
     transition: background-color 0.3s;
+}
+
+html[data-theme="dark"] body {
+    background-color: #1D232A;
+}
+
+html[data-theme="light"] body {
+    background-color: #ffffff;
 }

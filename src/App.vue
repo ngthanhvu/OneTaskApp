@@ -6,23 +6,47 @@
 </template>
 
 <script lang="ts" setup>
-import { watchEffect } from 'vue'
+import { onMounted, onBeforeUnmount } from 'vue'
 import { Notivue, Notification } from 'notivue'
 
-watchEffect(() => {
-  const theme = document.documentElement.getAttribute('data-theme')
-  const metaThemeColor = document.querySelector('#meta-theme-color')
-  const metaStatusBar = document.querySelector('#meta-status-bar')
+function applyMetaForTheme(theme: string | null) {
+  const metaThemeColor = document.querySelector<HTMLMetaElement>('#meta-theme-color')
+  const metaStatusBar = document.querySelector<HTMLMetaElement>('#meta-status-bar')
 
   if (theme === 'dark') {
-    metaThemeColor?.setAttribute('content', '#0f172a') // màu dark background
-    metaStatusBar?.setAttribute('content', 'black') // status bar chữ trắng
-    document.body.style.backgroundColor = '#0f172a'
+    metaThemeColor?.setAttribute('content', '#1D232A')
+    metaStatusBar?.setAttribute('content', 'black')
   } else {
-    metaThemeColor?.setAttribute('content', '#ffffff') // màu light background
-    metaStatusBar?.setAttribute('content', 'default')
-    document.body.style.backgroundColor = '#ffffff'
+    metaThemeColor?.setAttribute('content', '#ffffff')
+    metaStatusBar?.setAttribute('content', 'white')
   }
+}
+
+let themeObserver: MutationObserver | null = null
+
+onMounted(() => {
+  // Initialize once
+  applyMetaForTheme(document.documentElement.getAttribute('data-theme'))
+
+  // Observe changes to data-theme
+  themeObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === 'attributes') {
+        const currentTheme = document.documentElement.getAttribute('data-theme')
+        applyMetaForTheme(currentTheme)
+      }
+    }
+  })
+
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  })
+})
+
+onBeforeUnmount(() => {
+  themeObserver?.disconnect()
+  themeObserver = null
 })
 
 </script>

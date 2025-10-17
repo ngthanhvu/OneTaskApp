@@ -49,6 +49,8 @@ onMounted(async () => {
 
     if (!authStore.user) {
         await authStore.fetchUser()
+    } else {
+        fullName.value = profile.value?.full_name || authStore.user?.user_metadata?.full_name || ''
     }
     await authStore.fetchUserProfile({ force: true })
 })

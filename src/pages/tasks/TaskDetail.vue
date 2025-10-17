@@ -32,19 +32,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useTasksStore } from '../../stores/tasksStore'
+import type { Task } from '../../types/task'
 
 const route = useRoute()
 const id = Number(route.params.id)
 
-// Demo data: in real app, fetch by id
-const task = ref<any>({
-    id,
-    title: 'Chi tiết công việc',
-    date: new Date().toISOString().slice(0, 10),
-    done: false,
-    description: 'Mô tả ví dụ cho công việc. Thêm nội dung chi tiết ở đây.'
+const tasksStore = useTasksStore()
+const task = ref<Task | null>(null)
+
+onMounted(async () => {
+    const data = await tasksStore.getTask(id)
+    task.value = data as Task
 })
 </script>
 

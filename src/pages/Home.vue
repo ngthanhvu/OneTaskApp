@@ -261,8 +261,9 @@
 
 <script setup lang="ts">
 import { CalendarDaysIcon, ChartNoAxesCombinedIcon, ClipboardClockIcon, LayoutList } from 'lucide-vue-next'
-import { computed, reactive, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
+import { useTasksStore } from '../stores/tasksStore'
 
 interface Task {
     id: number
@@ -282,11 +283,7 @@ useHead({
     ],
 })
 
-const tasks = reactive<Task[]>([
-    { id: 1, title: 'Viết báo cáo tuần', date: '2025-10-16', done: false, description: 'Chuẩn bị báo cáo dự án' },
-    { id: 2, title: 'Học Vue 3 + DaisyUI', date: '2025-10-16', done: true, description: 'Xem qua doc DaisyUI' },
-    { id: 3, title: 'Dọn dẹp workspace', date: '2025-10-17', done: false, description: 'Sắp xếp lại code folder' },
-])
+const tasksStore = useTasksStore()
 
 function getGreetingByHour(date: Date) {
     const hour = date.getHours()
@@ -317,14 +314,14 @@ const todayFormatted = new Date().toLocaleDateString('vi-VN', {
     year: 'numeric',
 })
 
-const totalTasks = computed(() => tasks.length)
-const doneTasks = computed(() => tasks.filter(t => t.done).length)
+const totalTasks = computed(() => (tasksStore.tasks as unknown as Task[]).length)
+const doneTasks = computed(() => (tasksStore.tasks as unknown as Task[]).filter(t => t.done).length)
 const remainingTasks = computed(() => totalTasks.value - doneTasks.value)
 const donePercent = computed(() =>
     totalTasks.value ? Math.round((doneTasks.value / totalTasks.value) * 100) : 0
 )
-const todayTasks = computed(() => tasks.filter(t => t.date === today))
-const recentTasks = computed(() => [...tasks].sort((a, b) => b.id - a.id).slice(0, 5))
+const todayTasks = computed(() => (tasksStore.tasks as unknown as Task[]).filter(t => t.date === today))
+const recentTasks = computed(() => ([...((tasksStore.tasks as unknown as Task[]))]).sort((a, b) => b.id - a.id).slice(0, 5))
 
 // Quick add & filters
 const quickTitle = ref('')
@@ -338,19 +335,14 @@ function toggleTagFilter(tag: string) {
 }
 function quickAdd() {
     if (!quickTitle.value.trim()) return
-    const newTask: Task = {
-        id: Date.now(),
+    tasksStore.addTask({
         title: quickTitle.value.trim(),
         date: selectedDate.value,
         done: false,
         description: '',
-        // @ts-ignore add-on fields
         priority: quickPriority.value,
-        // @ts-ignore add-on fields
         tags: [...activeTags.value],
-    }
-    // @ts-ignore extend
-    tasks.push(newTask as any)
+    })
     quickTitle.value = ''
 }
 
@@ -364,7 +356,7 @@ const calendarAttrs = computed(() => [
     },
     {
         key: 'has-task',
-        dates: tasks.map(t => fromYMD(t.date)),
+        dates: (tasksStore.tasks as unknown as Task[]).map(t => fromYMD(t.date)),
         dot: { color: 'var(--p)' },
     },
 ])
@@ -373,7 +365,7 @@ function onDayClick(day: any) {
     selectedDate.value = toLocalYMD(day.date)
 }
 const tasksOfSelected = computed(() => {
-    const base = tasks.filter(t => t.date === selectedDate.value)
+    const base = (tasksStore.tasks as unknown as Task[]).filter(t => t.date === selectedDate.value)
     if (!activeTags.value.length) return base
     return base.filter((t: any) => Array.isArray((t as any).tags) && (t as any).tags.some((x: string) => activeTags.value.includes(x)))
 })
@@ -387,6 +379,10 @@ function openDetail(task: Task) {
 function closeDetail() {
     detailModal.value?.close()
 }
+
+onMounted(async () => {
+    await tasksStore.fetchTasks()
+})
 </script>
 
 <style scoped>

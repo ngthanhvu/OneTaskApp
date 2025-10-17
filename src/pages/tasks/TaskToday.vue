@@ -52,11 +52,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import TaskList from '../../components/tasks/TaskList.vue'
 import TaskForm from '../../components/tasks/TaskForm.vue'
 import { FileText } from 'lucide-vue-next'
+import { useTasksStore } from '../../stores/tasksStore'
+import type { Task, CreateTaskInput, UpdateTaskInput } from '../../types/task'
 
 useHead({
     title: 'Task today | Task Wan',
@@ -66,43 +68,36 @@ useHead({
     ],
 })
 
-const tasks = reactive<any[]>([
-    { id: 1, title: 'Họp với team', date: '2025-10-16', done: false, description: 'Họp định kỳ với team dev' },
-    { id: 2, title: 'Code dashboard', date: '2025-10-17', done: false, description: 'Hoàn thiện giao diện dashboard' },
-])
+const tasksStore = useTasksStore()
 
 const today = new Date().toISOString().slice(0, 10)
-const todayTasks = computed(() => tasks.filter(t => t.date === today))
+const todayTasks = computed(() => (tasksStore.tasks as unknown as Task[]).filter(t => t.date === today))
 
 const modal = ref<HTMLDialogElement | null>(null)
 const currentTask = ref<any>(null)
 const detailModal = ref<HTMLDialogElement | null>(null)
 const detailTask = ref<any | null>(null)
 
-function openForm(task?: any) {
+function openForm(task?: Task) {
     currentTask.value = task ? { ...task } : null
     modal.value?.showModal()
 }
 function closeForm() {
     modal.value?.close()
 }
-function saveTask(task: any) {
-    if (task.id) {
-        const index = tasks.findIndex(t => t.id === task.id)
-        if (index > -1) tasks[index] = task
+async function saveTask(task: Task | CreateTaskInput) {
+    if ('id' in task && task.id) {
+        await tasksStore.updateTask(task.id as number, task as UpdateTaskInput)
     } else {
-        task.id = Date.now()
-        if (task.status == null) task.status = 0
-        tasks.push(task)
+        await tasksStore.addTask(task as CreateTaskInput)
     }
     closeForm()
 }
-function deleteTask(task: any) {
-    const i = tasks.findIndex(t => t.id === task.id)
-    if (i > -1) tasks.splice(i, 1)
+async function deleteTask(task: Task) {
+    await tasksStore.removeTask(task.id)
 }
 
-function openDetail(task: any) {
+function openDetail(task: Task) {
     detailTask.value = { ...task }
     detailModal.value?.showModal()
 }
@@ -110,10 +105,11 @@ function closeDetail() {
     detailModal.value?.close()
 }
 
-function updateTask(updated: any) {
-    const index = tasks.findIndex(t => t.id === updated.id)
-    if (index > -1) {
-        tasks[index] = { ...tasks[index], ...updated }
-    }
+async function updateTask(updated: Partial<Task> & { id: number }) {
+    await tasksStore.updateTask(updated.id, updated)
 }
+
+onMounted(async () => {
+    await tasksStore.fetchTasks({ date: today })
+})
 </script>

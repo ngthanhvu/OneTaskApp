@@ -147,12 +147,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { LayoutList, Plus, FileText } from 'lucide-vue-next'
 import { useHead } from '@vueuse/head'
 import TaskList from '../../components/tasks/TaskList.vue'
 import TaskForm from '../../components/tasks/TaskForm.vue'
 import TaskFilterBar from '../../components/tasks/TaskFilterBar.vue'
+import { useTasksStore } from '../../stores/tasksStore'
+import type { CreateTaskInput, UpdateTaskInput, Task } from '../../types/task'
 
 useHead({
     title: 'Task | Task Wan',
@@ -162,10 +164,8 @@ useHead({
     ],
 })
 
-const tasks = reactive<any[]>([
-    { id: 1, title: 'Viết báo cáo', date: '2025-10-16', done: false, status: 0, priority: 'high', tags: ['work'] },
-    { id: 2, title: 'Học Vue 3 + DaisyUI', date: '2025-10-17', done: true, status: 2, priority: 'medium', tags: ['learn'] },
-])
+const tasksStore = useTasksStore()
+const tasks = tasksStore.tasks as unknown as Task[]
 const modal = ref<HTMLDialogElement | null>(null)
 const currentTask = ref<any>(null)
 const detailModal = ref<HTMLDialogElement | null>(null)
@@ -173,39 +173,44 @@ const detailTask = ref<any | null>(null)
 const filter = ref<'all' | 'today' | 'done' | 'todo'>('all')
 const today = new Date().toISOString().slice(0, 10)
 const filteredTasks = computed(() => {
-    if (filter.value === 'today') return tasks.filter(t => t.date === today)
-    if (filter.value === 'done') return tasks.filter(t => t.done)
-    if (filter.value === 'todo') return tasks.filter(t => !t.done)
-    return tasks
+    const list = tasksStore.tasks as unknown as Task[]
+    if (filter.value === 'today') return list.filter(t => t.date === today)
+    if (filter.value === 'done') return list.filter(t => t.done)
+    if (filter.value === 'todo') return list.filter(t => !t.done)
+    return list
 })
 const backlog = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 0))
 const inProgress = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 1))
 const doneList = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 2))
 
-function openForm(task?: any) {
+function openForm(task?: Task) {
     currentTask.value = task ? { ...task } : null
     modal.value?.showModal()
 }
 function closeForm() {
     modal.value?.close()
 }
-function saveTask(task: any) {
-    if (task.id) {
-        const index = tasks.findIndex(t => t.id === task.id)
-        if (index > -1) tasks[index] = task
+async function saveTask(task: Task | CreateTaskInput) {
+    if ('id' in task && task.id) {
+        await tasksStore.updateTask(task.id as number, task as UpdateTaskInput)
     } else {
-        task.id = Date.now()
-        if (task.status == null) task.status = 0
-        tasks.push(task)
+        await tasksStore.addTask({
+            title: (task as CreateTaskInput).title,
+            date: (task as CreateTaskInput).date,
+            description: (task as CreateTaskInput).description ?? null,
+            priority: (task as CreateTaskInput).priority ?? 'medium',
+            status: (task as CreateTaskInput).status ?? 0,
+            tags: (task as CreateTaskInput).tags ?? [],
+            done: (task as CreateTaskInput).done ?? false,
+        })
     }
     closeForm()
 }
-function deleteTask(task: any) {
-    const i = tasks.findIndex(t => t.id === task.id)
-    if (i > -1) tasks.splice(i, 1)
+async function deleteTask(task: Task) {
+    await tasksStore.removeTask(task.id)
 }
 
-function openDetail(task: any) {
+function openDetail(task: Task) {
     detailTask.value = { ...task }
     detailModal.value?.showModal()
 }
@@ -213,10 +218,11 @@ function closeDetail() {
     detailModal.value?.close()
 }
 
-function updateTask(updated: any) {
-    const index = tasks.findIndex(t => t.id === updated.id)
-    if (index > -1) {
-        tasks[index] = { ...tasks[index], ...updated }
-    }
+async function updateTask(updated: Partial<Task> & { id: number }) {
+    await tasksStore.updateTask(updated.id, updated)
 }
+
+onMounted(async () => {
+    await tasksStore.fetchTasks()
+})
 </script>

@@ -25,6 +25,11 @@
                     </p>
                 </div>
 
+                <!-- Tags -->
+                <div v-if="Array.isArray(local.tags) && local.tags.length" class="mt-2 flex flex-wrap gap-1">
+                    <span v-for="tag in local.tags" :key="tag" class="badge badge-ghost badge-xs">#{{ tag }}</span>
+                </div>
+
                 <!-- Nút sửa / xoá -->
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                     <button class="btn btn-ghost btn-xs" title="Sửa" @click="$emit('edit', local)">

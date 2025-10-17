@@ -5,19 +5,19 @@
             <router-link class="btn btn-ghost btn-sm" :to="{ name: 'TaskPage' }">← Quay lại</router-link>
         </div>
 
-        <div class="bg-base-100 rounded-xl border border-base-200 p-5 shadow">
+        <div v-if="task" class="bg-base-100 rounded-xl border border-base-200 p-5 shadow">
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <h2 class="text-xl font-semibold" :class="{ 'line-through text-base-content/50': task.done }">{{
-                        task.title }}</h2>
+                        task?.title }}</h2>
                     <div class="mt-1 flex items-center gap-2">
-                        <span class="badge badge-outline">Ngày: {{ task.date }}</span>
-                        <span class="badge" :class="task.done ? 'badge-success' : 'badge-warning'">{{ task.done ?
+                        <span class="badge badge-outline">Ngày: {{ task?.date }}</span>
+                        <span class="badge" :class="task?.done ? 'badge-success' : 'badge-warning'">{{ task?.done ?
                             'Đã xong' : 'Chưa xong' }}</span>
                     </div>
                 </div>
                 <label class="label cursor-pointer gap-2">
-                    <span class="label-text text-sm">{{ task.done ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong' }}</span>
+                    <span class="label-text text-sm">{{ task?.done ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong' }}</span>
                     <input type="checkbox" v-model="task.done" class="toggle toggle-primary toggle-sm" />
                 </label>
             </div>

@@ -130,7 +130,7 @@
                             <div class="min-w-0">
                                 <p class="truncate max-w-[150px] sm:max-w-xs md:max-w-sm"
                                     :class="{ 'line-through text-base-content/50': task.done }">
-                                    {{ task.title }}
+                                    {{ task?.title }}
                                 </p>
                                 <div class="flex items-center gap-2 flex-wrap mt-1">
                                     <span class="badge badge-sm" :class="task.done ? 'badge-success' : 'badge-warning'">
@@ -197,7 +197,7 @@
                         <div class="flex items-center gap-2 md:gap-3 min-w-0">
                             <span class="badge badge-ghost badge-xs">{{ task.date }}</span>
                             <span class="truncate text-sm md:text-base" :class="{ 'line-through text-base-content/50': task.done }">
-                                {{ task.title }}
+                                {{  task?.title }}
                             </span>
                         </div>
                         <button class="btn btn-outline btn-primary btn-xs" @click="openDetail(task)">Mở</button>

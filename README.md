@@ -63,7 +63,7 @@ This will compile and minify the application into the `dist` directory, ready fo
 ## Project Structure
 
 ```
-one-app
+task-wan
 ├─ index.html
 ├─ package.json
 ├─ public
@@ -87,8 +87,13 @@ one-app
 │  │     ├─ ConfirmDialog.vue
 │  │     ├─ EmptyState.vue
 │  │     └─ Modal.vue
+│  ├─ composables
+│  │  ├─ useAuthApi.ts
+│  │  └─ useTasksApi.ts
 │  ├─ layouts
 │  │  └─ MainLayout.vue
+│  ├─ lib
+│  │  └─ supabaseClient.ts
 │  ├─ main.ts
 │  ├─ pages
 │  │  ├─ auth
@@ -101,7 +106,12 @@ one-app
 │  │     └─ TaskToday.vue
 │  ├─ router
 │  │  └─ index.ts
-│  └─ style.css
+│  ├─ stores
+│  │  ├─ authStore.ts
+│  │  └─ tasksStore.ts
+│  ├─ style.css
+│  └─ types
+│     └─ task.ts
 ├─ tsconfig.app.json
 ├─ tsconfig.json
 ├─ tsconfig.node.json

@@ -73,6 +73,15 @@ import { supabase } from '../../lib/supabaseClient';
 import { storeToRefs } from 'pinia';
 import { CircleX } from 'lucide-vue-next';
 import { push } from 'notivue'
+import { useHead } from '@vueuse/head'
+
+useHead({
+    title: 'Profile | Task Wan',
+    meta: [
+        { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
+        { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },
+    ],
+})
 
 const router = useRouter();
 const authStore = useAuthStore();

@@ -53,9 +53,18 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
+import { useHead } from '@vueuse/head'
 import TaskList from '../../components/tasks/TaskList.vue'
 import TaskForm from '../../components/tasks/TaskForm.vue'
 import { FileText } from 'lucide-vue-next'
+
+useHead({
+    title: 'Task today | Task Wan',
+    meta: [
+        { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
+        { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },
+    ],
+})
 
 const tasks = reactive<any[]>([
     { id: 1, title: 'Họp với team', date: '2025-10-16', done: false, description: 'Họp định kỳ với team dev' },

@@ -16,8 +16,9 @@
                     <div class="relative">
                         <Mail class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
                         <input v-model="email" type="email" placeholder="admin@example.com"
-                            class="input input-bordered w-full pl-10" />
+                            class="input input-bordered w-full pl-10" :class="{ 'input-error': emailError }" />
                     </div>
+                    <p v-if="emailError" class="text-error text-sm mt-1">{{ emailError }}</p>
                 </div>
 
                 <!-- Password -->
@@ -28,8 +29,9 @@
                     <div class="relative">
                         <KeyRound class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
                         <input v-model="password" type="password" placeholder="••••••••"
-                            class="input input-bordered w-full pl-10" />
+                            class="input input-bordered w-full pl-10" :class="{ 'input-error': passwordError }" />
                     </div>
+                    <p v-if="passwordError" class="text-error text-sm mt-1">{{ passwordError }}</p>
 
                     <!-- Remember + Forgot -->
                     <div class="flex justify-between items-center mt-3 text-sm">
@@ -48,6 +50,11 @@
                     <span v-if="!loading">Login</span>
                     <span v-else class="loading loading-spinner loading-sm"></span>
                 </button>
+
+                <!-- Global error (nếu Supabase trả lỗi khác) -->
+                <p v-if="globalError" class="text-error text-center text-sm mt-2">
+                    {{ globalError }}
+                </p>
             </form>
 
             <!-- Footer -->
@@ -64,16 +71,52 @@ import { useRouter } from 'vue-router'
 import { Mail, KeyRound, LogIn } from 'lucide-vue-next'
 import { useAuthStore } from '../../stores/authStore'
 import { storeToRefs } from 'pinia'
+import { push } from 'notivue'
+import { useHead } from '@vueuse/head'
+
+useHead({
+    title: 'Login | Task Wan',
+    meta: [
+        { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
+        { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },
+    ],
+})
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
 const remember = ref(false)
+const emailError = ref('')
+const passwordError = ref('')
+const globalError = ref('')
+
 const authStore = useAuthStore()
 const { loading } = storeToRefs(authStore)
 
+// validate cơ bản + regex
+function validateForm() {
+    emailError.value = ''
+    passwordError.value = ''
+    globalError.value = ''
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!email.value) emailError.value = 'Email is required.'
+    else if (!emailRegex.test(email.value)) emailError.value = 'Invalid email format.'
+
+    if (!password.value) passwordError.value = 'Password is required.'
+    else if (password.value.length < 6)
+        passwordError.value = 'Password must be at least 6 characters.'
+
+    return !emailError.value && !passwordError.value
+}
+
 async function handleLogin() {
-    if (!email.value || !password.value) return
+    if (!validateForm()) {
+        push.error({ title: 'Validation Error', message: 'Please fix the highlighted fields.' })
+        return
+    }
+
+    // Remember login
     if (remember.value) {
         localStorage.setItem('email', email.value)
         localStorage.setItem('password', password.value)
@@ -83,12 +126,30 @@ async function handleLogin() {
         localStorage.removeItem('password')
         localStorage.removeItem('remember')
     }
+
     loading.value = true
+    globalError.value = ''
+
     try {
         await authStore.login(email.value, password.value)
-        router.push('/')
-    } catch (error) {
-        console.log(error)
+        setTimeout(() => {
+            push.success({ title: 'Login Successful', message: 'Welcome back!' })
+            router.push('/')
+        }, 1000)
+    } catch (err: any) {
+        console.error('Login error:', err)
+        const msg =
+            err?.message ||
+            (err?.error_description ?? 'An unexpected error occurred. Please try again.')
+        globalError.value = msg
+
+        if (msg.includes('Invalid login credentials')) {
+            passwordError.value = 'Incorrect email or password.'
+        } else if (msg.includes('Email not confirmed')) {
+            emailError.value = 'Your email address has not been verified.'
+        }
+
+        push.error({ title: 'Login Failed', message: msg })
     } finally {
         loading.value = false
     }
@@ -98,7 +159,7 @@ onMounted(() => {
     const saveEmail = localStorage.getItem('email')
     const savePassword = localStorage.getItem('password')
     const saveRemember = localStorage.getItem('remember')
-    if(saveEmail && savePassword) {
+    if (saveEmail && savePassword) {
         email.value = saveEmail
         password.value = savePassword
         remember.value = saveRemember === 'true'
@@ -107,7 +168,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Nền sáng tối tự động dựa theme DaisyUI */
 .card {
     transition: all 0.3s ease;
 }

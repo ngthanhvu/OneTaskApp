@@ -149,9 +149,18 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { LayoutList, Plus, FileText } from 'lucide-vue-next'
+import { useHead } from '@vueuse/head'
 import TaskList from '../../components/tasks/TaskList.vue'
 import TaskForm from '../../components/tasks/TaskForm.vue'
 import TaskFilterBar from '../../components/tasks/TaskFilterBar.vue'
+
+useHead({
+    title: 'Task | Task Wan',
+    meta: [
+        { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
+        { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },
+    ],
+})
 
 const tasks = reactive<any[]>([
     { id: 1, title: 'Viết báo cáo', date: '2025-10-16', done: false, status: 0, priority: 'high', tags: ['work'] },

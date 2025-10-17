@@ -1,6 +1,23 @@
 <template>
-    <div class="mx-auto space-y-10">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="mx-auto space-y-6 md:space-y-10">
+        <!-- Mobile Header -->
+        <div class="md:hidden space-y-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <LayoutList class="w-4 h-4" />
+                    Tất cả Task
+                </h1>
+                <button class="btn btn-primary btn-sm" @click="openForm()">
+                    <Plus class="w-4 h-4" />
+                </button>
+            </div>
+            <div class="w-full">
+                <TaskFilterBar v-model="filter" />
+            </div>
+        </div>
+
+        <!-- Desktop Header -->
+        <div class="hidden md:flex flex-wrap items-center justify-between gap-3">
             <h1 class="text-2xl font-bold flex items-center gap-2">
                 <LayoutList class="w-5 h-5" />
                 Tất cả Task
@@ -14,14 +31,51 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Mobile Kanban - Vertical Stack -->
+        <div class="md:hidden space-y-4">
+            <div class="space-y-3">
+                <div class="flex items-center justify-between gap-2 bg-base-200 rounded-lg p-3">
+                    <h3 class="font-semibold text-sm">Chưa làm</h3>
+                    <span class="badge badge-ghost badge-sm">{{ backlog.length }}</span>
+                </div>
+                <div class="space-y-2">
+                    <TaskList :tasks="backlog" @edit="openForm" @delete="deleteTask" @view="openDetail" @update="updateTask"
+                        @status-change="updateTask" />
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between gap-2 bg-base-200 rounded-lg p-3">
+                    <h3 class="font-semibold text-sm">Đang làm</h3>
+                    <span class="badge badge-info badge-outline badge-sm">{{ inProgress.length }}</span>
+                </div>
+                <div class="space-y-2">
+                    <TaskList :tasks="inProgress" @edit="openForm" @delete="deleteTask" @view="openDetail"
+                        @update="updateTask" @status-change="updateTask" />
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between gap-2 bg-base-200 rounded-lg p-3">
+                    <h3 class="font-semibold text-sm">Đã làm</h3>
+                    <span class="badge badge-success badge-outline badge-sm">{{ doneList.length }}</span>
+                </div>
+                <div class="space-y-2">
+                    <TaskList :tasks="doneList" @edit="openForm" @delete="deleteTask" @view="openDetail"
+                        @update="updateTask" @status-change="updateTask" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Kanban - Grid Layout -->
+        <div class="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div class="space-y-2">
                 <div class="flex items-center justify-between gap-2">
                     <h3 class="font-semibold truncate">Chưa làm</h3>
                     <span class="badge badge-ghost shrink-0">{{ backlog.length }}</span>
                 </div>
-                <TaskList :tasks="backlog" @edit="openForm" @delete="deleteTask" @view="openDetail"
-                    @update="updateTask" @status-change="updateTask" />
+                <TaskList :tasks="backlog" @edit="openForm" @delete="deleteTask" @view="openDetail" @update="updateTask"
+                    @status-change="updateTask" />
             </div>
             <div class="space-y-2">
                 <div class="flex items-center justify-between gap-2">
@@ -51,35 +105,41 @@
         <!-- Modal detail -->
         <dialog ref="detailModal" class="modal">
             <div class="modal-box w-full max-w-2xl" v-if="detailTask">
-                <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center justify-between mb-4">
                     <h3 class="font-bold text-lg flex items-center gap-2">
                         <FileText class="w-4 h-4" />
                         Chi tiết Task
                     </h3>
                     <button class="btn btn-sm btn-ghost" @click="closeDetail">✖</button>
                 </div>
-                <div class="space-y-3">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <h4 class="text-xl font-semibold" :class="{ 'line-through text-base-content/50': detailTask?.done }">{{ detailTask?.title }}</h4>
-                            <div class="mt-1 flex items-center gap-2">
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-lg sm:text-xl font-semibold break-words"
+                                :class="{ 'line-through text-base-content/50': detailTask?.done }">{{ detailTask?.title
+                                }}</h4>
+                            <div class="mt-2 flex flex-wrap items-center gap-2">
                                 <span class="badge badge-outline">Ngày: {{ detailTask?.date }}</span>
-                                <span class="badge" :class="detailTask?.done ? 'badge-success' : 'badge-warning'">{{ detailTask?.done ? 'Đã xong' : 'Chưa xong' }}</span>
+                                <span class="badge" :class="detailTask?.done ? 'badge-success' : 'badge-warning'">{{
+                                    detailTask?.done ? 'Đã xong' : 'Chưa xong' }}</span>
                             </div>
                         </div>
-                        <label class="label cursor-pointer gap-2">
-                            <span class="label-text text-sm">{{ detailTask?.done ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong' }}</span>
+                        <label class="label cursor-pointer gap-2 shrink-0">
+                            <span class="label-text text-sm">{{
+                                detailTask?.done ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'
+                            }}</span>
                             <input type="checkbox" v-model="detailTask.done" class="toggle toggle-primary toggle-sm" />
                         </label>
                     </div>
                     <div>
-                        <h5 class="font-medium mb-1">Mô tả</h5>
-                        <p class="text-base-content/70 whitespace-pre-line" v-if="detailTask?.description">{{ detailTask?.description }}</p>
+                        <h5 class="font-medium mb-2">Mô tả</h5>
+                        <p class="text-base-content/70 whitespace-pre-line break-words" v-if="detailTask?.description">{{
+                            detailTask?.description }}</p>
                         <p class="text-base-content/50 italic" v-else>Không có mô tả</p>
                     </div>
                 </div>
                 <div class="modal-action">
-                    <button class="btn" @click="closeDetail">Đóng</button>
+                    <button class="btn w-full sm:w-auto" @click="closeDetail">Đóng</button>
                 </div>
             </div>
         </dialog>

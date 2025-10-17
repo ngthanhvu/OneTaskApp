@@ -1,6 +1,30 @@
 <template>
-    <div class="mx-auto space-y-10">
-        <!-- Header -->
+    <div class="mx-auto space-y-6 md:space-y-10">
+        <!-- Mobile Header -->
+        <div class="md:hidden space-y-4">
+            
+            <!-- Mobile Stats Cards -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="stat bg-base-100 shadow rounded-xl border border-base-300 p-4">
+                    <div class="stat-title text-xs">Tổng Task</div>
+                    <div class="stat-value text-primary text-lg">{{ totalTasks }}</div>
+                </div>
+                <div class="stat bg-base-100 shadow rounded-xl border border-base-300 p-4">
+                    <div class="stat-title text-xs">Đã xong</div>
+                    <div class="stat-value text-success text-lg">{{ doneTasks }}</div>
+                </div>
+                <div class="stat bg-base-100 shadow rounded-xl border border-base-300 p-4">
+                    <div class="stat-title text-xs">Còn lại</div>
+                    <div class="stat-value text-warning text-lg">{{ remainingTasks }}</div>
+                </div>
+                <div class="stat bg-base-100 shadow rounded-xl border border-base-300 p-4">
+                    <div class="stat-title text-xs">Hôm nay</div>
+                    <div class="stat-value text-lg">{{ todayTasks.length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Header -->
         <div class="hidden md:flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold">👋 {{ greeting }}, Vũ!</h1>
@@ -11,8 +35,8 @@
             <button class="btn btn-primary" @click="$router.push('/tasks')">+ Thêm Task</button>
         </div>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Desktop Stats -->
+        <div class="hidden md:grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="stat bg-base-100 shadow rounded-xl border border-base-300">
                 <div class="stat-title">Tổng Task</div>
                 <div class="stat-value text-primary">{{ totalTasks }}</div>
@@ -39,15 +63,16 @@
         </div>
 
         <!-- Calendar + Tasks by selected date -->
-        <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6 lg:gap-8 items-start">
             <!-- Cột lịch -->
             <div class="flex justify-start lg:justify-start items-start">
-                <div class="bg-base-100 rounded-2xl shadow-md border border-base-300 p-6 w-full max-w-[360px]">
-                    <h2 class="text-xl font-semibold flex items-center gap-2 mb-4">
-                        <CalendarDaysIcon class="w-5 h-5" />
-                        Lịch công việc
+                <div class="bg-base-100 rounded-2xl shadow-md border border-base-300 p-4 md:p-6 w-full max-w-[360px]">
+                    <h2 class="text-lg md:text-xl font-semibold flex items-center gap-2 mb-3 md:mb-4">
+                        <CalendarDaysIcon class="w-4 h-4 md:w-5 md:h-5" />
+                        <span class="hidden sm:inline">Lịch công việc</span>
+                        <span class="sm:hidden">Lịch</span>
                     </h2>
-                    <div class="bg-base-200 rounded-xl p-3 flex justify-center">
+                    <div class="bg-base-200 rounded-xl p-2 md:p-3 flex justify-center">
                         <VCalendar is-expanded color="primary" :attributes="calendarAttrs" @dayclick="onDayClick" />
                     </div>
                 </div>
@@ -55,19 +80,38 @@
 
             <!-- Cột danh sách task -->
             <div class="space-y-4">
-                <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
-                    <LayoutList class="w-5 h-5" />
-                    <div class="flex items-center gap-2 min-w-0 flex-1">
-                        <h2 class="text-xl font-semibold">Công việc ngày {{ selectedDateDisplay }}</h2>
-                        <div
-                            class="hidden sm:flex items-center gap-1 overflow-x-auto whitespace-nowrap max-w-[200px] sm:max-w-[260px] md:max-w-[340px]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <LayoutList class="w-4 h-4 md:w-5 md:h-5" />
+                        <h2 class="text-lg md:text-xl font-semibold">Công việc ngày {{ selectedDateDisplay }}</h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="hidden sm:flex items-center gap-1 overflow-x-auto whitespace-nowrap max-w-[200px] sm:max-w-[260px] md:max-w-[340px]">
                             <span class="badge badge-ghost badge-xs" v-for="t in tagOptions" :key="t"
                                 @click="toggleTagFilter(t)" :class="{ 'badge-primary': activeTags.includes(t) }">{{ t
                                 }}</span>
                         </div>
                     </div>
-                    <form class="flex items-center gap-2 w-full sm:w-auto" @submit.prevent="quickAdd()">
-                        <input v-model="quickTitle" class="input input-sm input-bordered w-full sm:w-52"
+                </div>
+                
+                <!-- Mobile Quick Add -->
+                <div class="md:hidden">
+                    <form class="flex items-center gap-2" @submit.prevent="quickAdd()">
+                        <input v-model="quickTitle" class="input input-sm input-bordered flex-1"
+                            placeholder="Thêm nhanh..." />
+                        <select v-model="quickPriority" class="select select-bordered select-sm w-20">
+                            <option value="low">Low</option>
+                            <option value="medium">Med</option>
+                            <option value="high">High</option>
+                        </select>
+                        <button class="btn btn-sm btn-primary">+</button>
+                    </form>
+                </div>
+                
+                <!-- Desktop Quick Add -->
+                <div class="hidden md:block">
+                    <form class="flex items-center gap-2" @submit.prevent="quickAdd()">
+                        <input v-model="quickTitle" class="input input-sm input-bordered w-52"
                             placeholder="Thêm nhanh..." />
                         <select v-model="quickPriority" class="select select-bordered select-sm">
                             <option value="low">Low</option>
@@ -117,7 +161,7 @@
         </div>
 
         <!-- Progress section -->
-        <div>
+        <div class="hidden md:block">
             <div class="flex items-center space-x-2 mb-2">
                 <ChartNoAxesCombinedIcon class="w-5 h-5" />
                 <h2 class="text-2xl font-semibold">Tiến độ tuần này</h2>
@@ -130,18 +174,29 @@
             </div>
         </div>
 
+        <!-- Mobile Progress -->
+        <div class="md:hidden">
+            <div class="bg-base-100 rounded-xl p-4 shadow border border-base-300">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-sm">Tiến độ hôm nay</h3>
+                    <span class="text-xs text-base-content/70">{{ donePercent }}%</span>
+                </div>
+                <progress class="progress progress-primary w-full h-2" :value="donePercent" max="100"></progress>
+            </div>
+        </div>
+
         <!-- Recent tasks -->
         <div>
             <div class="flex items-center space-x-2 mb-2">
-                <ClipboardClockIcon class="w-5 h-5" />
-                <h2 class="text-2xl font-semibold">Gần đây</h2>
+                <ClipboardClockIcon class="w-4 h-4 md:w-5 md:h-5" />
+                <h2 class="text-lg md:text-2xl font-semibold">Gần đây</h2>
             </div>
-            <div class="bg-base-100 rounded-2xl p-4 shadow-md border border-base-200">
+            <div class="bg-base-100 rounded-2xl p-3 md:p-4 shadow-md border border-base-200">
                 <ul class="divide-y divide-base-200">
-                    <li v-for="task in recentTasks" :key="task.id" class="py-3 flex items-center justify-between">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span class="badge badge-ghost badge-sm">{{ task.date }}</span>
-                            <span class="truncate" :class="{ 'line-through text-base-content/50': task.done }">
+                    <li v-for="task in recentTasks" :key="task.id" class="py-2 md:py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2 md:gap-3 min-w-0">
+                            <span class="badge badge-ghost badge-xs">{{ task.date }}</span>
+                            <span class="truncate text-sm md:text-base" :class="{ 'line-through text-base-content/50': task.done }">
                                 {{ task.title }}
                             </span>
                         </div>

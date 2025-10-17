@@ -39,12 +39,26 @@
             <!-- Chọn trạng thái -->
             <div v-if="local.status != null" class="mt-3 flex items-center gap-2">
                 <span class="text-xs text-base-content/60">Trạng thái:</span>
-                <select class="select select-bordered select-sm" v-model="local.status"
-                    @change="$emit('status-change', { ...local })">
-                    <option :value="0">Chưa làm</option>
-                    <option :value="1">Đang làm</option>
-                    <option :value="2">Đã làm</option>
-                </select>
+                <div class="flex gap-1">
+                    <button 
+                        class="btn btn-xs" 
+                        :class="local.status === 0 ? 'btn-primary' : 'btn-outline'"
+                        @click="changeStatus(0)">
+                        Chưa làm
+                    </button>
+                    <button 
+                        class="btn btn-xs" 
+                        :class="local.status === 1 ? 'btn-primary' : 'btn-outline'"
+                        @click="changeStatus(1)">
+                        Đang làm
+                    </button>
+                    <button 
+                        class="btn btn-xs" 
+                        :class="local.status === 2 ? 'btn-primary' : 'btn-outline'"
+                        @click="changeStatus(2)">
+                        Đã làm
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -66,7 +80,7 @@
 import { reactive, watch, computed } from 'vue'
 import { FileText, Pencil, Trash2 } from 'lucide-vue-next'
 const props = defineProps<{ task: any }>()
-defineEmits(['edit', 'delete', 'update', 'view', 'status-change'])
+const emit = defineEmits(['edit', 'delete', 'update', 'view', 'status-change'])
 const local = reactive({ ...props.task })
 const descriptionPreview = computed(() => (local as any).description?.trim() || 'Không có mô tả')
 const statusLabel = computed(() => {
@@ -84,5 +98,11 @@ const priorityClass = computed(() => {
     if (local.priority === 'low') return 'badge-ghost'
     return 'badge-info'
 })
+
+function changeStatus(newStatus: number) {
+    local.status = newStatus
+    emit('status-change', { ...local })
+}
+
 watch(() => props.task, val => Object.assign(local, val))
 </script>

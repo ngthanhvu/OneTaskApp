@@ -36,10 +36,19 @@ export const useAuthStore = defineStore('auth', () => {
         if (!user.value) return null
         loading.value = true
         try {
+            const hasFullName = Object.prototype.hasOwnProperty.call(payload, 'full_name')
+            const hasAvatar = Object.prototype.hasOwnProperty.call(payload, 'avatar_url')
+            const nextFullNameForDb = hasFullName
+                ? (payload.full_name ?? '')
+                : (profile.value?.full_name ?? '')
+            const nextAvatarForDb = hasAvatar
+                ? (payload.avatar_url ?? null)
+                : (profile.value?.avatar_url ?? null)
+
             const upserted = await api.upsertProfile({
                 id: user.value.id,
-                full_name: payload.full_name ?? profile.value?.full_name ?? '',
-                avatar_url: payload.avatar_url ?? profile.value?.avatar_url ?? null,
+                full_name: nextFullNameForDb,
+                avatar_url: nextAvatarForDb,
             })
             if (!upserted) {
                 const fresh = await api.fetchProfile(user.value.id)
@@ -56,10 +65,21 @@ export const useAuthStore = defineStore('auth', () => {
                 profile.value = { ...profile.value, ...upserted }
             }
             profileLoaded.value = true
+            const nextFullName = nextFullNameForDb
+            const nextAvatarUrl = nextAvatarForDb
             await api.updateUserMetadata({
-                full_name: profile.value.full_name ?? payload.full_name ?? '',
-                avatar_url: profile.value.avatar_url ?? payload.avatar_url ?? null,
+                full_name: nextFullName,
+                avatar_url: nextAvatarUrl,
             })
+
+            user.value = {
+                ...user.value,
+                user_metadata: {
+                    ...(user.value?.user_metadata ?? {}),
+                    full_name: nextFullName,
+                    avatar_url: nextAvatarUrl,
+                },
+            }
             return profile.value
         } catch (e) {
             console.error('Error saving user profile:', e)
@@ -112,6 +132,15 @@ export const useAuthStore = defineStore('auth', () => {
         profileLoaded.value = false
     }
 
+    async function clearAvatar() {
+        if (!user.value) return null
+        if (!profileLoaded.value) {
+            await fetchUserProfile({ force: true })
+        }
+        const updated = await saveUserProfile({ avatar_url: null })
+        return updated
+    }
+
     api.onAuthStateChange(async (_event, session) => {
         user.value = session?.user ?? null
         if (user.value) {
@@ -134,5 +163,6 @@ export const useAuthStore = defineStore('auth', () => {
         fetchUser,
         fetchUserProfile,
         saveUserProfile,
+        clearAvatar,
     }
 })

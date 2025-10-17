@@ -17,7 +17,7 @@
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
                     <div class="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                        <img :src="profile?.avatar_url || user?.user_metadata?.avatar_url || '/image.png'" />
+                        <img :src="avatarUrl" />
                     </div>
                 </div>
             </div>
@@ -26,18 +26,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Sun, Moon } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore';
 import { storeToRefs } from 'pinia';
 
 const authStore = useAuthStore();
-const { user, profile } = storeToRefs(authStore)
+const { profile, profileLoaded } = storeToRefs(authStore)
 
 const theme = ref<'light' | 'dark'>('light')
 const search = ref('')
-const photoUrl = ref<string | null>(null)
 const fullName = ref('')
+
+const avatarUrl = computed(() => {
+    if (!profileLoaded.value) return '/image.png'
+    return profile.value?.avatar_url || '/image.png'
+})
 
 onMounted(async () => {
     theme.value = localStorage.getItem('theme') as 'light' | 'dark' || 'light'
@@ -45,10 +49,8 @@ onMounted(async () => {
 
     if (!authStore.user) {
         await authStore.fetchUser()
-    } else {
-        photoUrl.value = authStore.user?.user_metadata?.avatar_url || null;
-        fullName.value = authStore.user?.user_metadata?.full_name || null
     }
+    await authStore.fetchUserProfile({ force: true })
 })
 const todayFormatted = new Date().toLocaleDateString('vi-VN', {
     weekday: 'long',

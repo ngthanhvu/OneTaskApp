@@ -145,7 +145,7 @@ async function removePhoto() {
         if (error) throw error
 
         photoUrl.value = null
-        await authStore.saveUserProfile({ avatar_url: null })
+        await authStore.clearAvatar()
         push.success('Xóa ảnh thành công!')
     } catch (err) {
         console.error('Remove photo error:', err)
@@ -169,7 +169,9 @@ async function loadUserProfile() {
         }
         fullName.value = (profile.value?.full_name as string) || user.value.user_metadata?.full_name || ''
         email.value = user.value.email || ''
-        photoUrl.value = (profile.value?.avatar_url as string | null) || user.value.user_metadata?.avatar_url || null
+        photoUrl.value = (profile.value && 'avatar_url' in profile.value)
+            ? (profile.value.avatar_url as string | null)
+            : (user.value.user_metadata?.avatar_url || null)
     } catch (error) {
         console.error('Error loading profile:', error)
     } finally {
@@ -221,7 +223,9 @@ onMounted(async () => {
     } else {
         fullName.value = profile.value?.full_name ?? user.value?.user_metadata?.full_name ?? ''
         email.value = user.value?.email ?? ''
-        photoUrl.value = profile.value?.avatar_url ?? user.value?.user_metadata?.avatar_url ?? null
+        photoUrl.value = (profile.value && 'avatar_url' in profile.value)
+            ? (profile.value.avatar_url as string | null)
+            : (user.value?.user_metadata?.avatar_url ?? null)
     }
 })
 

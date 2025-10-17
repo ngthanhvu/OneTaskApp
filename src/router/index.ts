@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { supabase } from '../lib/supabaseClient';
 import MainLayout from '../layouts/MainLayout.vue';
 
 import Home from '../pages/Home.vue';
@@ -18,12 +19,14 @@ const routes = [
             {
                 path: '',
                 name: 'home',
-                component: Home
+                component: Home,
+                meta: { requiresAuth: true }
             },
             {
                 path: 'profile',
                 name: 'profile',
-                component: Profile
+                component: Profile,
+                meta: { requiresAuth: true }
             }
         ]
     },
@@ -31,9 +34,9 @@ const routes = [
         path: '/tasks',
         component: MainLayout,
         children: [
-            { path: '', name: 'TaskPage', component: TaskPage },
-            { path: 'today', name: 'TaskToday', component: TaskToday },
-            { path: ':id', name: 'TaskDetail', component: TaskDetail },
+            { path: '', name: 'TaskPage', component: TaskPage, meta: { requiresAuth: true } },
+            { path: 'today', name: 'TaskToday', component: TaskToday, meta: { requiresAuth: true } },
+            { path: ':id', name: 'TaskDetail', component: TaskDetail, meta: { requiresAuth: true } },
         ],
     },
     {
@@ -47,5 +50,21 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
 });
+
+router.beforeEach(async (to, _from, next) => {
+    const {
+        data: { session },
+    } = await supabase.auth.getSession()
+
+    const isLoggedIn = !!session?.user
+
+    if (to.meta.requiresAuth && !isLoggedIn) {
+        next({ name: 'login' })
+    } else if (to.name === 'login' && isLoggedIn) {
+        next({ name: 'home' })
+    } else {
+        next()
+    }
+})
 
 export default router;

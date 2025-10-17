@@ -3,7 +3,7 @@
         <div class="card w-full max-w-md bg-base-100 shadow-xl rounded-2xl p-6 sm:p-8">
             <!-- Header -->
             <h2 class="text-3xl font-bold text-center mb-8">
-                <span class="text-primary">OneApp</span> Admin
+                <span class="text-primary">Task Wan</span> Admin
             </h2>
 
             <!-- Form -->
@@ -52,7 +52,7 @@
 
             <!-- Footer -->
             <p class="text-center text-sm mt-8 text-base-content/70">
-                © {{ new Date().getFullYear() }} OneApp. All rights reserved.
+                © {{ new Date().getFullYear() }} Task Wan. All rights reserved.
             </p>
         </div>
     </div>
@@ -62,14 +62,17 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Mail, KeyRound, LogIn } from 'lucide-vue-next'
+import { useAuthStore } from '../../stores/authStore'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
 const remember = ref(false)
-const loading = ref(false)
+const authStore = useAuthStore()
+const { loading } = storeToRefs(authStore)
 
-function handleLogin() {
+async function handleLogin() {
     if (!email.value || !password.value) return
     if (remember.value) {
         localStorage.setItem('email', email.value)
@@ -80,12 +83,15 @@ function handleLogin() {
         localStorage.removeItem('password')
         localStorage.removeItem('remember')
     }
-    // Giả lập đăng nhập
     loading.value = true
-    setTimeout(() => {
-        loading.value = false
+    try {
+        await authStore.login(email.value, password.value)
         router.push('/')
-    }, 1000)
+    } catch (error) {
+        console.log(error)
+    } finally {
+        loading.value = false
+    }
 }
 
 onMounted(() => {

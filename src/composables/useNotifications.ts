@@ -160,6 +160,11 @@ export function useNotifications() {
         return await notificationService.markAsRead(notificationId)
     }
 
+    async function clearHistory() {
+        if (!auth.user?.id) return
+        await notificationService.clearHistory(auth.user.id)
+    }
+
     return {
         permission,
         isSupported,
@@ -175,5 +180,6 @@ export function useNotifications() {
         updatePreferences,
         getHistory,
         markAsRead
+        ,clearHistory
     }
 }

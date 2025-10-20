@@ -1,15 +1,29 @@
 <template>
     <div class="splash-container">
-        <div class="flex flex-col items-center gap-4">
+        <div class="flex flex-col items-center gap-6">
             <h1 class="text-primary text-3xl font-bold">Task Wan</h1>
 
-            <div class="loader">
-                <div class="circle"></div>
-                <div class="circle"></div>
-                <div class="circle"></div>
-                <div class="circle"></div>
+            <div class="flex items-center justify-center gap-6">
+                <div class="loader">
+                    <svg viewBox="0 0 80 80">
+                        <circle r="32" cy="40" cx="40"></circle>
+                    </svg>
+                </div>
+
+                <div class="loader triangle">
+                    <svg viewBox="0 0 86 80">
+                        <polygon points="43 8 79 72 7 72"></polygon>
+                    </svg>
+                </div>
+
+                <div class="loader">
+                    <svg viewBox="0 0 80 80">
+                        <rect height="64" width="64" y="8" x="8"></rect>
+                    </svg>
+                </div>
             </div>
-            <p class="text-white mt-3">Đang tải dữ liệu...</p>
+
+            <p class="text-base-content/70 mt-3">Đang tải dữ liệu...</p>
         </div>
     </div>
 </template>
@@ -17,75 +31,166 @@
 <style scoped>
 .splash-container {
     position: fixed;
-    inset: 0;
-    background-color: #1d232a;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    background-color: #1D232A;
     z-index: 9999;
 }
 
 .loader {
-    --dim: 3rem;
-    width: var(--dim);
-    height: var(--dim);
+    --path: #6b7280;
+    --dot: #6366f1;
+    --duration: 3s;
+    width: 44px;
+    height: 44px;
     position: relative;
-    animation: spin988 2s linear infinite;
+    display: inline-block;
+    margin: 0 12px;
 }
 
-.loader .circle {
-    --color: #fff;
-    --dim: 1.2rem;
-    width: var(--dim);
-    height: var(--dim);
-    background-color: var(--color);
+.loader:before {
+    content: "";
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     position: absolute;
+    display: block;
+    background: var(--dot);
+    top: 37px;
+    left: 19px;
+    transform: translate(-18px, -18px);
+    animation: dotRect var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
 }
 
-.loader .circle:nth-child(1) {
-    top: 0;
-    left: 0;
+.loader svg {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
-.loader .circle:nth-child(2) {
-    top: 0;
-    right: 0;
+.loader svg rect,
+.loader svg polygon,
+.loader svg circle {
+    fill: none;
+    stroke: var(--path);
+    stroke-width: 10px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
 }
 
-.loader .circle:nth-child(3) {
-    bottom: 0;
-    left: 0;
+.loader svg polygon {
+    stroke-dasharray: 145 76 145 76;
+    stroke-dashoffset: 0;
+    animation: pathTriangle var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
 }
 
-.loader .circle:nth-child(4) {
-    bottom: 0;
-    right: 0;
+.loader svg rect {
+    stroke-dasharray: 192 64 192 64;
+    stroke-dashoffset: 0;
+    animation: pathRect var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
 }
 
-@keyframes spin988 {
-    0% {
-        transform: scale(1) rotate(0);
+.loader svg circle {
+    stroke-dasharray: 150 50 150 50;
+    stroke-dashoffset: 75;
+    animation: pathCircle var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+}
+
+.loader.triangle {
+    width: 48px;
+}
+
+.loader.triangle:before {
+    left: 21px;
+    transform: translate(-10px, -18px);
+    animation: dotTriangle var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+}
+
+/* Animations */
+@keyframes pathTriangle {
+    33% {
+        stroke-dashoffset: 74;
     }
 
-    20%,
-    25% {
-        transform: scale(1.3) rotate(90deg);
+    66% {
+        stroke-dashoffset: 147;
     }
 
-    45%,
-    50% {
-        transform: scale(1) rotate(180deg);
-    }
-
-    70%,
-    75% {
-        transform: scale(1.3) rotate(270deg);
-    }
-
-    95%,
     100% {
-        transform: scale(1) rotate(360deg);
+        stroke-dashoffset: 221;
+    }
+}
+
+@keyframes dotTriangle {
+    33% {
+        transform: translate(0, 0);
+    }
+
+    66% {
+        transform: translate(10px, -18px);
+    }
+
+    100% {
+        transform: translate(-10px, -18px);
+    }
+}
+
+@keyframes pathRect {
+    25% {
+        stroke-dashoffset: 64;
+    }
+
+    50% {
+        stroke-dashoffset: 128;
+    }
+
+    75% {
+        stroke-dashoffset: 192;
+    }
+
+    100% {
+        stroke-dashoffset: 256;
+    }
+}
+
+@keyframes dotRect {
+    25% {
+        transform: translate(0, 0);
+    }
+
+    50% {
+        transform: translate(18px, -18px);
+    }
+
+    75% {
+        transform: translate(0, -36px);
+    }
+
+    100% {
+        transform: translate(-18px, -18px);
+    }
+}
+
+@keyframes pathCircle {
+    25% {
+        stroke-dashoffset: 125;
+    }
+
+    50% {
+        stroke-dashoffset: 175;
+    }
+
+    75% {
+        stroke-dashoffset: 225;
+    }
+
+    100% {
+        stroke-dashoffset: 275;
     }
 }
 </style>

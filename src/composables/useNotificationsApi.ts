@@ -115,6 +115,16 @@ export function useNotificationsApi() {
         if (error) throw error
     }
 
+    // Delete all notification history for a user
+    async function clearHistory(userId: string): Promise<void> {
+        const { error } = await supabase
+            .from('notification_history')
+            .delete()
+            .eq('user_id', userId)
+
+        if (error) throw error
+    }
+
     // Schedule a notification
     async function scheduleNotification(notification: Omit<ScheduledNotification, 'id' | 'created_at'>): Promise<ScheduledNotification> {
         const { data, error } = await supabase
@@ -215,6 +225,7 @@ export function useNotificationsApi() {
         addToHistory,
         markAsRead,
         markAsClicked,
+        clearHistory,
         scheduleNotification,
         getScheduledNotifications,
         markScheduledAsSent,

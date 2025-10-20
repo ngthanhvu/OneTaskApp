@@ -19,6 +19,9 @@ export interface NotificationAction {
 class NotificationService {
     private permission: NotificationPermission = 'default'
     private api = useNotificationsApi()
+    private recentTags: Map<string, number> = new Map()
+    private scheduledKeys: Set<string> = new Set()
+    private throttleWindowMs = 10 * 60 * 1000 // 10 minutes
 
     async requestPermission(): Promise<boolean> {
         if (!('Notification' in window)) {
@@ -39,7 +42,21 @@ class NotificationService {
         return permission === 'granted'
     }
 
+    private shouldThrottle(tag?: string): boolean {
+        if (!tag) return false
+        const now = Date.now()
+        const last = this.recentTags.get(tag)
+        if (last && now - last < this.throttleWindowMs) {
+            return true
+        }
+        this.recentTags.set(tag, now)
+        return false
+    }
+
     async showNotification(options: NotificationOptions, userId?: string, type?: string, taskId?: number): Promise<void> {
+        if (this.shouldThrottle(options.tag)) {
+            return
+        }
         if (this.permission !== 'granted') {
             const hasPermission = await this.requestPermission()
             if (!hasPermission) {
@@ -116,6 +133,13 @@ class NotificationService {
         if (reminderTime <= now) {
             return
         }
+
+        // Prevent duplicate scheduling in-session
+        const scheduleKey = `deadline-${task.id}`
+        if (this.scheduledKeys.has(scheduleKey)) {
+            return
+        }
+        this.scheduledKeys.add(scheduleKey)
 
         // Save to scheduled notifications
         try {
@@ -233,6 +257,11 @@ class NotificationService {
     // Mark notification as read
     async markAsRead(notificationId: number) {
         return await this.api.markAsRead(notificationId)
+    }
+
+    // Clear all notifications
+    async clearHistory(userId: string) {
+        return await this.api.clearHistory(userId)
     }
 
     // Get tasks for notifications

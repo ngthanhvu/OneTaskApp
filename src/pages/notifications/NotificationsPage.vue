@@ -15,10 +15,15 @@
             <NotificationSettings />
             <div class="card bg-base-100 shadow-sm border border-base-200">
                 <div class="card-body p-4 md:p-6">
-                    <h3 class="font-semibold text-base md:text-lg mb-3 md:mb-4 flex items-center gap-2">
-                        <History class="w-4 h-4 md:w-5 md:h-5" />
-                        Lịch sử thông báo
-                    </h3>
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <h3 class="font-semibold text-base md:text-lg flex items-center gap-2">
+                            <History class="w-4 h-4 md:w-5 md:h-5" />
+                            Lịch sử thông báo
+                        </h3>
+                        <button class="btn btn-ghost text-red-500 btn-xs md:btn-sm" @click="confirmOpen = true" :disabled="isClearing || notificationHistory.length === 0">
+                            {{ isClearing ? 'Đang xoá...' : 'Xoá tất cả' }}
+                        </button>
+                    </div>
                     <div v-if="notificationHistory.length === 0" class="text-center py-6 md:py-8">
                         <Bell class="w-10 h-10 md:w-12 md:h-12 mx-auto text-base-content/30 mb-3" />
                         <p class="text-sm md:text-base text-base-content/60">Chưa có thông báo nào</p>
@@ -57,6 +62,14 @@
                     </div>
                 </div>
             </div>
+            <!-- Confirm Dialog -->
+            <ConfirmDialog
+                :open="confirmOpen"
+                title="Xoá lịch sử"
+                message="Bạn có chắc muốn xoá tất cả lịch sử thông báo?"
+                @update:open="val => (confirmOpen = val)"
+                @confirm="confirmClearHistory"
+            />
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div class="card bg-base-100 shadow-sm border border-base-200 h-full">
@@ -122,6 +135,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { Bell, History } from 'lucide-vue-next'
+import ConfirmDialog from '../../components/ui/ConfirmDialog.vue'
 import { useHead } from '@vueuse/head'
 import NotificationSettings from '../../components/notifications/NotificationSettings.vue'
 import { useNotifications } from '../../composables/useNotifications'
@@ -148,10 +162,12 @@ useHead({
 const notifications = useNotifications()
 const tasksStore = useTasksStore()
 
-const { isSupported, canNotify, requestPermission, checkTodayTasks: checkTodayTasksComposable, scheduleTaskReminders, checkOverdueTasks: checkOverdueTasksComposable, getHistory } = notifications
+const { isSupported, canNotify, requestPermission, checkTodayTasks: checkTodayTasksComposable, scheduleTaskReminders, checkOverdueTasks: checkOverdueTasksComposable, getHistory, clearHistory } = notifications
 
 const isChecking = ref(false)
 const notificationHistory = ref<NotificationHistoryItem[]>([])
+const isClearing = ref(false)
+const confirmOpen = ref(false)
 
 // Pagination
 const currentPage = ref(1)
@@ -168,6 +184,18 @@ const paginatedHistory = computed(() => {
 function nextPage() {
     if (currentPage.value < totalPages.value) {
         currentPage.value++
+    }
+}
+
+async function confirmClearHistory() {
+    isClearing.value = true
+    try {
+        await clearHistory()
+        notificationHistory.value = []
+    } catch (e) {
+        console.error('Failed to clear notifications:', e)
+    } finally {
+        isClearing.value = false
     }
 }
 

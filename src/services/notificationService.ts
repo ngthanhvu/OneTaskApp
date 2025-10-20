@@ -104,8 +104,9 @@ class NotificationService {
         title: string
         date: string
         priority: string
+        due_at?: string | null
     }, userId: string, reminderMinutes: number = 30): Promise<void> {
-        const taskDate = new Date(task.date)
+        const taskDate = new Date(task.due_at ?? task.date)
         const now = new Date()
         
         // Calculate reminder time
@@ -146,8 +147,9 @@ class NotificationService {
         title: string
         date: string
         priority: string
+        due_at?: string | null
     }, userId?: string): Promise<void> {
-        const taskDate = new Date(task.date)
+        const taskDate = new Date(task.due_at ?? task.date)
         const now = new Date()
         const timeDiff = taskDate.getTime() - now.getTime()
         const hoursLeft = Math.ceil(timeDiff / (1000 * 60 * 60))

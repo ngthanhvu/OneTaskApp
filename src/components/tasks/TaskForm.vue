@@ -16,6 +16,17 @@
                 <input v-model="form.date" type="date" class="input input-bordered w-full focus:outline-none focus:ring-1 focus:ring-primary mt-2" required />
             </div>
             <div class="form-control">
+                <label class="label"><span class="label-text">Ngày hết hạn <small>(tuỳ chọn)</small></span></label>
+                <input v-model="dueDate" type="date" class="input input-bordered w-full focus:outline-none focus:ring-1 focus:ring-primary mt-2" />
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text">Giờ hết hạn <small>(tuỳ chọn)</small></span></label>
+                <input v-model="dueTime" type="time" class="input input-bordered w-full focus:outline-none focus:ring-1 focus:ring-primary mt-2" />
+                <label class="label">
+                    <small>Nếu chọn giờ, hệ thống sẽ lưu thời hạn đầy đủ (due_at)</small>
+                </label>
+            </div>
+            <div class="form-control">
                 <label class="label"><span class="label-text">Trạng thái <span class="text-red-500">*</span></span></label>
                 <select v-model="form.done" class="select select-bordered w-full focus:outline-none focus:ring-1 focus:ring-primary mt-2">
                     <option :value="false">Chưa xong</option>
@@ -61,6 +72,7 @@ const form = reactive({
     id: props.task?.id || null,
     title: props.task?.title || '',
     date: props.task?.date || new Date().toISOString().slice(0, 10),
+    due_at: props.task?.due_at || null,
     description: props.task?.description || '',
     done: props.task?.done || false,
     priority: props.task?.priority || 'medium',
@@ -68,6 +80,16 @@ const form = reactive({
 })
 
 const tagsInput = ref<string>(Array.isArray(form.tags) ? form.tags.join(', ') : '')
+const dueDate = ref<string>('')
+const dueTime = ref<string>('')
+if (form.due_at) {
+    const d = new Date(form.due_at)
+    dueDate.value = d.toLocaleDateString('en-CA')
+    const hh = String(d.getHours()).padStart(2, '0')
+    const mm = String(d.getMinutes()).padStart(2, '0')
+    dueTime.value = `${hh}:${mm}`
+}
+
 watchEffect(() => {
     form.tags = tagsInput.value
         .split(',')
@@ -76,6 +98,16 @@ watchEffect(() => {
 })
 
 function submitForm() {
-    emit('submit', { ...form })
+    // Build due_at from date + dueTime (local timezone)
+    let dueAt: string | null = null
+    if (dueDate.value || dueTime.value) {
+        const base = dueDate.value || form.date
+        const [hh, mm] = (dueTime.value || '09:00').split(':')
+        const local = new Date(base)
+        local.setHours(Number(hh), Number(mm), 0, 0)
+        dueAt = local.toISOString()
+    }
+
+    emit('submit', { ...form, due_at: dueAt })
 }
 </script>

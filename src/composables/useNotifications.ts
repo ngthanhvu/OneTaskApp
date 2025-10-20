@@ -37,7 +37,8 @@ export function useNotifications() {
             id: task.id,
             title: task.title,
             date: task.date,
-            priority: task.priority
+            priority: task.priority,
+            due_at: (task as any).due_at ?? null
         }, auth.user?.id)
     }
 
@@ -53,7 +54,8 @@ export function useNotifications() {
             id: task.id,
             title: task.title,
             date: task.date,
-            priority: task.priority
+            priority: task.priority,
+            due_at: (task as any).due_at ?? null
         }, auth.user.id, minutesBefore)
     }
 

@@ -22,12 +22,13 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ modelValue: 'all' | 'today' | 'done' | 'todo' }>()
+defineProps<{ modelValue: 'all' | 'today' | 'done' | 'todo' | 'overdue' }>()
 defineEmits(['update:modelValue'])
 
 const filters = [
     { label: 'Tất cả', value: 'all' },
     { label: 'Hôm nay', value: 'today' },
+    { label: 'Quá hạn', value: 'overdue' },
     { label: 'Đã xong', value: 'done' },
     { label: 'Chưa xong', value: 'todo' },
 ]

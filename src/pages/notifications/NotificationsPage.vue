@@ -11,23 +11,18 @@
             </div>
         </div>
 
-        <!-- Notification Settings -->
         <div class="space-y-4 md:space-y-6">
             <NotificationSettings />
-
-            <!-- Notification History -->
             <div class="card bg-base-100 shadow-sm border border-base-200">
                 <div class="card-body p-4 md:p-6">
                     <h3 class="font-semibold text-base md:text-lg mb-3 md:mb-4 flex items-center gap-2">
                         <History class="w-4 h-4 md:w-5 md:h-5" />
                         Lịch sử thông báo
                     </h3>
-
                     <div v-if="notificationHistory.length === 0" class="text-center py-6 md:py-8">
                         <Bell class="w-10 h-10 md:w-12 md:h-12 mx-auto text-base-content/30 mb-3" />
                         <p class="text-sm md:text-base text-base-content/60">Chưa có thông báo nào</p>
                     </div>
-
                     <div v-else class="space-y-2 md:space-y-3">
                         <div v-for="notification in paginatedHistory" :key="notification.id"
                             class="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-base-200/50 rounded-lg">
@@ -51,7 +46,6 @@
                         </div>
                     </div>
 
-                    <!-- Pagination -->
                     <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-4">
                         <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-sm btn-ghost">
                             Trước
@@ -64,56 +58,59 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div>
-                <div class="card bg-base-100 shadow-sm border border-base-200">
-                    <div class="card-body p-3 md:p-4">
-                        <h4 class="font-semibold text-xs md:text-sm mb-2">Nhắc nhở hôm nay</h4>
-                        <p class="text-xs text-base-content/60 mb-3">Kiểm tra task hôm nay</p>
-                        <button class="btn btn-outline btn-xs md:btn-sm w-full" @click="checkTodayTasks"
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div class="card bg-base-100 shadow-sm border border-base-200 h-full">
+                    <div class="card-body flex flex-col items-center justify-center text-center p-6 space-y-4">
+                        <div class="flex flex-col items-center">
+                            <Bell class="w-10 h-10 text-primary/80 mb-2" />
+                            <h4 class="font-semibold text-sm md:text-base">Nhắc nhở hôm nay</h4>
+                            <p class="text-xs md:text-sm text-base-content/60">
+                                Kiểm tra các task cần làm trong ngày hôm nay
+                            </p>
+                        </div>
+
+                        <button class="btn btn-outline btn-sm md:btn-md w-full max-w-[160px]" @click="checkTodayTasks"
                             :disabled="!canNotify || isChecking">
                             {{ isChecking ? 'Đang kiểm tra...' : 'Kiểm tra' }}
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Notification Preferences -->
-            <div class="card bg-base-100 shadow-sm border border-base-200">
-                <div class="card-body p-4 md:p-6">
-                    <h3 class="font-semibold text-base md:text-lg mb-3 md:mb-4">Tùy chọn thông báo</h3>
-
-                    <div class="space-y-3 md:space-y-4">
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-medium text-xs md:text-sm">Nhắc nhở task hôm nay</h4>
-                                <p class="text-xs text-base-content/60">Thông báo về task cần làm hôm nay</p>
+                <div class="card bg-base-100 shadow-sm border border-base-200">
+                    <div class="card-body p-4 md:p-6">
+                        <h3 class="font-semibold text-base md:text-lg mb-3 md:mb-4">Tùy chọn thông báo</h3>
+                        <div class="space-y-3 md:space-y-4">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-medium text-xs md:text-sm">Nhắc nhở task hôm nay</h4>
+                                    <p class="text-xs text-base-content/60">Thông báo về task cần làm hôm nay</p>
+                                </div>
+                                <input type="checkbox" class="toggle toggle-primary toggle-sm md:toggle-md" checked />
                             </div>
-                            <input type="checkbox" class="toggle toggle-primary toggle-sm md:toggle-md" checked />
-                        </div>
 
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-medium text-xs md:text-sm">Cảnh báo deadline</h4>
-                                <p class="text-xs text-base-content/60">Nhắc nhở trước khi task hết hạn</p>
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-medium text-xs md:text-sm">Cảnh báo deadline</h4>
+                                    <p class="text-xs text-base-content/60">Nhắc nhở trước khi task hết hạn</p>
+                                </div>
+                                <input type="checkbox" class="toggle toggle-primary toggle-sm md:toggle-md" checked />
                             </div>
-                            <input type="checkbox" class="toggle toggle-primary toggle-sm md:toggle-md" checked />
-                        </div>
 
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-medium text-xs md:text-sm">Thông báo quá hạn</h4>
-                                <p class="text-xs text-base-content/60">Cảnh báo task đã quá hạn</p>
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-medium text-xs md:text-sm">Thông báo quá hạn</h4>
+                                    <p class="text-xs text-base-content/60">Cảnh báo task đã quá hạn</p>
+                                </div>
+                                <input type="checkbox" class="toggle toggle-primary toggle-sm md:toggle-md" checked />
                             </div>
-                            <input type="checkbox" class="toggle toggle-primary toggle-sm md:toggle-md" checked />
-                        </div>
 
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-medium text-xs md:text-sm">Nhắc nhở theo độ ưu tiên</h4>
-                                <p class="text-xs text-base-content/60">Thông báo dựa trên mức độ ưu tiên</p>
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-medium text-xs md:text-sm">Nhắc nhở theo độ ưu tiên</h4>
+                                    <p class="text-xs text-base-content/60">Thông báo dựa trên mức độ ưu tiên</p>
+                                </div>
+                                <input type="checkbox" class="toggle toggle-primary toggle-sm md:toggle-md" checked />
                             </div>
-                            <input type="checkbox" class="toggle toggle-primary toggle-sm md:toggle-md" checked />
                         </div>
                     </div>
                 </div>

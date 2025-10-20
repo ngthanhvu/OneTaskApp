@@ -1,9 +1,6 @@
 <template>
-    <div class="group p-4 rounded-xl bg-base-100/80 shadow-sm hover:shadow-md border border-base-200 hover:border-base-300 transition-all 
-        flex flex-col justify-between min-h-[12rem] sm:min-h-[13rem] max-h-[auto] cursor-move relative"
-        draggable="true"
-        @dragstart="onDragStart"
-        @dragend="onDragEnd">
+    <div :class="[baseContainerClasses, deadlineClass]"
+        draggable="true" @dragstart="onDragStart" @dragend="onDragEnd">
         <!-- Drag Handle -->
         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <div class="w-4 h-4 flex flex-col gap-0.5 cursor-move">
@@ -27,6 +24,12 @@
                         <span class="badge badge-sm shrink-0" :class="local.done ? 'badge-success' : 'badge-warning'">
                             {{ local.done ? 'Đã xong' : 'Chưa xong' }}
                         </span>
+
+                        <!-- Badge trạng thái ngày -->
+                        <span v-if="isOverdue" class="badge badge-error badge-outline badge-sm shrink-0">Quá hạn</span>
+                        <span v-else-if="isToday" class="badge badge-warning badge-outline badge-sm shrink-0">Hôm
+                            nay</span>
+
                         <span v-if="local.status" class="badge badge-outline badge-sm shrink-0">{{ statusLabel }}</span>
                         <span v-if="local.priority" class="badge badge-sm shrink-0" :class="priorityClass">
                             {{ priorityLabel }}
@@ -82,10 +85,11 @@
             <label class="label cursor-pointer gap-2">
                 <span class="label-text text-sm">{{ local.done ? 'Đã xong' : 'Chưa xong' }}</span>
                 <input type="checkbox" v-model="local.done" class="toggle toggle-primary toggle-sm"
-                    @change="$emit('update', local)" />
+                    @change="onDoneToggled" />
             </label>
         </div>
 
+        <!-- Modal Xác nhận xoá -->
         <dialog ref="confirmModal" class="modal">
             <div class="modal-box">
                 <h3 class="font-bold text-lg text-error">Xác nhận xoá</h3>
@@ -102,6 +106,7 @@
         </dialog>
     </div>
 </template>
+
 <script setup lang="ts">
 import { reactive, ref, watch, computed } from 'vue'
 import { FileText, Pencil, Trash2 } from 'lucide-vue-next'
@@ -130,9 +135,62 @@ function confirmDelete() {
 }
 
 const descriptionPreview = computed(() => local.description?.trim() || 'Không có mô tả')
-const statusLabel = computed(() => (local.status === 1 ? 'Đang làm' : local.status === 2 ? 'Đã làm' : 'Chưa làm'))
-const priorityLabel = computed(() => (local.priority === 'high' ? 'High' : local.priority === 'low' ? 'Low' : 'Medium'))
-const priorityClass = computed(() => (local.priority === 'high' ? 'badge-error' : local.priority === 'low' ? 'badge-ghost' : 'badge-info'))
+const statusLabel = computed(() =>
+    local.status === 1 ? 'Đang làm' : local.status === 2 ? 'Đã làm' : 'Chưa làm'
+)
+const priorityLabel = computed(() =>
+    local.priority === 'high' ? 'High' : local.priority === 'low' ? 'Low' : 'Medium'
+)
+const priorityClass = computed(() =>
+    local.priority === 'high'
+        ? 'badge-error'
+        : local.priority === 'low'
+            ? 'badge-ghost'
+            : 'badge-info'
+)
+
+const baseContainerClasses = 'group p-4 rounded-xl bg-base-100/80 shadow-sm hover:shadow-md border border-base-200 hover:border-base-300 flex flex-col justify-between min-h-[12rem] sm:min-h-[13rem] max-h-[auto] cursor-move relative transition-colors duration-300'
+
+function toYmdLocal(date: Date): string {
+    return date.toLocaleDateString('en-CA')
+}
+
+function normalizeDateString(input: unknown): string | null {
+    if (!input) return null
+    if (typeof input === 'string') {
+        const ymd = input.slice(0, 10)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return ymd
+    }
+    const parsed = new Date(input as any)
+    if (isNaN(parsed.getTime())) return null
+    return toYmdLocal(parsed)
+}
+
+const today = toYmdLocal(new Date())
+const isOverdue = computed(() => {
+    const taskDue = normalizeDateString(local.due_at ?? local.date)
+    if (!taskDue) return false
+    return !local.done && taskDue < today
+})
+
+const isToday = computed(() => {
+    const taskDue = normalizeDateString(local.due_at ?? local.date)
+    if (!taskDue) return false
+    return !local.done && taskDue === today
+})
+
+const deadlineClass = computed(() => {
+    if (local.done) {
+        return 'border-success bg-success/10 outline outline-1 outline-success/40'
+    }
+    if (isOverdue.value) {
+        return 'border-error bg-error/10 outline outline-1 outline-error/40'
+    }
+    if (isToday.value) {
+        return 'border-warning bg-warning/10 outline outline-1 outline-warning/40'
+    }
+    return ''
+})
 
 function changeStatus(newStatus: number) {
     local.status = newStatus
@@ -147,8 +205,17 @@ function onDragStart(event: DragEvent) {
 }
 
 function onDragEnd() {
-    // Clean up any visual feedback
 }
 
-watch(() => props.task, val => Object.assign(local, val))
+function onDoneToggled() {
+    if (local.done) {
+        local.status = 2
+    }
+    emit('update', { ...local })
+}
+
+watch(
+    () => props.task,
+    (val) => Object.assign(local, val)
+)
 </script>

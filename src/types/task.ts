@@ -6,6 +6,7 @@ export interface Task {
     id: number
     title: string
     date: string // ISO date (YYYY-MM-DD)
+    due_at?: string | null // ISO datetime (YYYY-MM-DDTHH:mm:ssZ)
     done: boolean
     description: string | null
     status: TaskStatus
@@ -19,6 +20,7 @@ export interface Task {
 export type CreateTaskInput = {
     title: string
     date: string
+    due_at?: string | null
     description?: string | null
     status?: TaskStatus
     priority?: TaskPriority

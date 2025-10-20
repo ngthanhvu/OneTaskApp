@@ -188,14 +188,42 @@ const modal = ref<HTMLDialogElement | null>(null)
 const currentTask = ref<any>(null)
 const detailModal = ref<HTMLDialogElement | null>(null)
 const detailTask = ref<any | null>(null)
-const filter = ref<'all' | 'today' | 'done' | 'todo'>('all')
+const filter = ref<'all' | 'today' | 'done' | 'todo' | 'overdue'>('all')
 const today = new Date().toISOString().slice(0, 10)
 const dragOverColumn = ref<number | null>(null)
+
+function toYmdLocal(date: Date): string {
+    return date.toLocaleDateString('en-CA')
+}
+
+function normalizeDateString(input: unknown): string | null {
+    if (!input) return null
+    if (typeof input === 'string') {
+        const ymd = input.slice(0, 10)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return ymd
+    }
+    const parsed = new Date(input as any)
+    if (isNaN(parsed.getTime())) return null
+    return toYmdLocal(parsed)
+}
+
 const filteredTasks = computed(() => {
     const list = tasksStore.tasks as unknown as Task[]
-    if (filter.value === 'today') return list.filter(t => t.date === today)
+    if (filter.value === 'today') {
+        return list.filter(t => {
+            const due = normalizeDateString((t as any).due_at ?? t.date)
+            return due === today
+        })
+    }
     if (filter.value === 'done') return list.filter(t => t.done)
     if (filter.value === 'todo') return list.filter(t => !t.done)
+    if (filter.value === 'overdue') {
+        const todayYmd = toYmdLocal(new Date())
+        return list.filter(t => {
+            const due = normalizeDateString((t as any).due_at ?? t.date)
+            return !t.done && due && due < todayYmd
+        })
+    }
     return list
 })
 const backlog = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 0))
@@ -243,11 +271,9 @@ async function updateTask(updated: Partial<Task> & { id: number }) {
 
 async function reorderTasks(status: number, newList: any[]) {
     try {
-        // Use store method which handles both local state and persistence
         await tasksStore.reorderTasks(status as any, newList)
     } catch (error) {
         console.error('Failed to reorder tasks:', error)
-        // Refresh from server on error
         await tasksStore.refresh()
     }
 }
@@ -255,14 +281,12 @@ async function reorderTasks(status: number, newList: any[]) {
 function handleDrop(targetStatus: number, event: DragEvent) {
     dragOverColumn.value = null
     
-    // Get the dragged task from the drag data
     const taskData = event.dataTransfer?.getData('application/json')
     if (!taskData) return
     
     try {
         const task = JSON.parse(taskData)
         if (task && task.id) {
-            // Update task status
             updateTask({ ...task, status: targetStatus })
         }
     } catch (error) {

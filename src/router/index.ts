@@ -8,6 +8,8 @@ import TaskPage from '../pages/tasks/TaskPage.vue';
 import TaskToday from '../pages/tasks/TaskToday.vue';
 import TaskDetail from '../pages/tasks/TaskDetail.vue';
 
+import NotificationsPage from '../pages/notifications/NotificationsPage.vue';
+
 import Login from '../pages/auth/Login.vue';
 import Profile from '../pages/auth/Profile.vue';
 
@@ -39,6 +41,13 @@ const routes = [
             { path: '', name: 'TaskPage', component: TaskPage, meta: { requiresAuth: true } },
             { path: 'today', name: 'TaskToday', component: TaskToday, meta: { requiresAuth: true } },
             { path: ':id', name: 'TaskDetail', component: TaskDetail, meta: { requiresAuth: true } },
+        ],
+    },
+    {
+        path: '/notifications',
+        component: MainLayout,
+        children: [
+            { path: '', name: 'NotificationsPage', component: NotificationsPage, meta: { requiresAuth: true } },
         ],
     },
     {

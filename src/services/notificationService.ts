@@ -1,3 +1,5 @@
+import { useNotificationsApi } from '../composables/useNotificationsApi'
+
 export interface NotificationOptions {
     title: string
     body: string
@@ -16,6 +18,7 @@ export interface NotificationAction {
 
 class NotificationService {
     private permission: NotificationPermission = 'default'
+    private api = useNotificationsApi()
 
     async requestPermission(): Promise<boolean> {
         if (!('Notification' in window)) {
@@ -36,7 +39,7 @@ class NotificationService {
         return permission === 'granted'
     }
 
-    async showNotification(options: NotificationOptions): Promise<void> {
+    async showNotification(options: NotificationOptions, userId?: string, type?: string, taskId?: number): Promise<void> {
         if (this.permission !== 'granted') {
             const hasPermission = await this.requestPermission()
             if (!hasPermission) {
@@ -53,6 +56,21 @@ class NotificationService {
             requireInteraction: options.requireInteraction || false
         })
 
+        // Save to history if userId provided
+        if (userId && type) {
+            try {
+                await this.api.addToHistory({
+                    user_id: userId,
+                    title: options.title,
+                    body: options.body,
+                    type: type as any,
+                    task_id: taskId
+                })
+            } catch (error) {
+                console.error('Failed to save notification to history:', error)
+            }
+        }
+
         // Auto close after 5 seconds unless requireInteraction is true
         if (!options.requireInteraction) {
             setTimeout(() => {
@@ -64,6 +82,18 @@ class NotificationService {
             notification.onclick = () => {
                 window.focus()
                 notification.close()
+                
+                // Mark as clicked if notificationId available
+                if (options.tag && userId) {
+                    const parts = options.tag.split('-')
+                    if (parts.length > 1) {
+                        const notificationId = parseInt(parts[1])
+                        if (!isNaN(notificationId)) {
+                            this.api.markAsClicked(notificationId).catch(console.error)
+                        }
+                    }
+                }
+                
                 resolve()
             }
         })
@@ -74,14 +104,29 @@ class NotificationService {
         title: string
         date: string
         priority: string
-    }, reminderMinutes: number = 30): Promise<void> {
+    }, userId: string, reminderMinutes: number = 30): Promise<void> {
         const taskDate = new Date(task.date)
         const now = new Date()
         
+        // Calculate reminder time
         const reminderTime = new Date(taskDate.getTime() - (reminderMinutes * 60 * 1000))
         
+        // If reminder time is in the past, don't schedule
         if (reminderTime <= now) {
             return
+        }
+
+        // Save to scheduled notifications
+        try {
+            await this.api.scheduleNotification({
+                user_id: userId,
+                task_id: task.id,
+                notification_type: 'deadline',
+                scheduled_for: reminderTime.toISOString(),
+                sent: false
+            })
+        } catch (error) {
+            console.error('Failed to schedule notification:', error)
         }
 
         const delay = reminderTime.getTime() - now.getTime()
@@ -91,20 +136,8 @@ class NotificationService {
                 title: `⏰ Deadline sắp tới!`,
                 body: `Task "${task.title}" sẽ hết hạn trong ${reminderMinutes} phút`,
                 tag: `deadline-${task.id}`,
-                requireInteraction: task.priority === 'high',
-                actions: [
-                    {
-                        action: 'view',
-                        title: 'Xem task',
-                        icon: '/app.png'
-                    },
-                    {
-                        action: 'complete',
-                        title: 'Đánh dấu hoàn thành',
-                        icon: '/app.png'
-                    }
-                ]
-            })
+                requireInteraction: task.priority === 'high'
+            }, userId, 'deadline', task.id)
         }, delay)
     }
 
@@ -113,7 +146,7 @@ class NotificationService {
         title: string
         date: string
         priority: string
-    }): Promise<void> {
+    }, userId?: string): Promise<void> {
         const taskDate = new Date(task.date)
         const now = new Date()
         const timeDiff = taskDate.getTime() - now.getTime()
@@ -133,7 +166,7 @@ class NotificationService {
             body: `Task sẽ hết hạn ${taskDate.toLocaleDateString('vi-VN')} (${hoursLeft}h nữa)`,
             tag: `task-${task.id}`,
             requireInteraction: task.priority === 'high' || hoursLeft <= 2
-        })
+        }, userId, 'priority', task.id)
     }
 
     async checkTodayTasks(tasks: Array<{
@@ -142,7 +175,7 @@ class NotificationService {
         date: string
         priority: string
         done: boolean
-    }>): Promise<void> {
+    }>, userId?: string): Promise<void> {
         const today = new Date().toISOString().slice(0, 10)
         const todayTasks = tasks.filter(task => 
             task.date === today && !task.done
@@ -154,7 +187,7 @@ class NotificationService {
                 body: `Bạn có ${todayTasks.length} task cần hoàn thành hôm nay`,
                 tag: 'daily-reminder',
                 requireInteraction: true
-            })
+            }, userId, 'daily')
         }
     }
 
@@ -164,7 +197,7 @@ class NotificationService {
         date: string
         priority: string
         done: boolean
-    }>): Promise<void> {
+    }>, userId?: string): Promise<void> {
         const today = new Date().toISOString().slice(0, 10)
         const overdueTasks = tasks.filter(task => 
             task.date < today && !task.done
@@ -176,8 +209,33 @@ class NotificationService {
                 body: `Bạn có ${overdueTasks.length} task đã quá hạn cần xử lý`,
                 tag: 'overdue-reminder',
                 requireInteraction: true
-            })
+            }, userId, 'overdue')
         }
+    }
+
+    // Get notification preferences
+    async getPreferences(userId: string) {
+        return await this.api.getPreferences(userId)
+    }
+
+    // Update notification preferences
+    async updatePreferences(userId: string, preferences: any) {
+        return await this.api.updatePreferences(userId, preferences)
+    }
+
+    // Get notification history
+    async getHistory(userId: string, limit?: number) {
+        return await this.api.getHistory(userId, limit)
+    }
+
+    // Mark notification as read
+    async markAsRead(notificationId: number) {
+        return await this.api.markAsRead(notificationId)
+    }
+
+    // Get tasks for notifications
+    async getTasksForNotifications(userId: string) {
+        return await this.api.getTasksForNotifications(userId)
     }
 }
 

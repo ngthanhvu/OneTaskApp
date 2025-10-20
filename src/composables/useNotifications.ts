@@ -1,8 +1,10 @@
 import { ref, computed } from 'vue'
 import { notificationService } from '../services/notificationService'
+import { useAuthStore } from '../stores/authStore'
 import type { Task } from '../types/task'
 
 export function useNotifications() {
+    const auth = useAuthStore()
     const permission = ref<NotificationPermission>('default')
     const isSupported = ref(false)
 
@@ -36,7 +38,7 @@ export function useNotifications() {
             title: task.title,
             date: task.date,
             priority: task.priority
-        })
+        }, auth.user?.id)
     }
 
     async function scheduleDeadlineReminder(task: Task, minutesBefore: number = 30): Promise<void> {
@@ -45,12 +47,14 @@ export function useNotifications() {
             if (!granted) return
         }
 
+        if (!auth.user?.id) return
+
         await notificationService.scheduleDeadlineReminder({
             id: task.id,
             title: task.title,
             date: task.date,
             priority: task.priority
-        }, minutesBefore)
+        }, auth.user.id, minutesBefore)
     }
 
     async function checkTodayTasks(tasks: Task[]): Promise<void> {
@@ -59,7 +63,7 @@ export function useNotifications() {
             if (!granted) return
         }
 
-        await notificationService.checkTodayTasks(tasks)
+        await notificationService.checkTodayTasks(tasks, auth.user?.id)
     }
 
     async function checkOverdueTasks(tasks: Task[]): Promise<void> {
@@ -68,7 +72,7 @@ export function useNotifications() {
             if (!granted) return
         }
 
-        await notificationService.scheduleOverdueReminders(tasks)
+        await notificationService.scheduleOverdueReminders(tasks, auth.user?.id)
     }
 
     // Schedule reminders for tasks based on their priority and due date
@@ -77,6 +81,8 @@ export function useNotifications() {
             const granted = await requestPermission()
             if (!granted) return
         }
+
+        if (!auth.user?.id) return
 
         const now = new Date()
 
@@ -132,6 +138,26 @@ export function useNotifications() {
         }
     }
 
+    // API methods
+    async function getPreferences() {
+        if (!auth.user?.id) return null
+        return await notificationService.getPreferences(auth.user.id)
+    }
+
+    async function updatePreferences(preferences: any) {
+        if (!auth.user?.id) return null
+        return await notificationService.updatePreferences(auth.user.id, preferences)
+    }
+
+    async function getHistory(limit?: number) {
+        if (!auth.user?.id) return []
+        return await notificationService.getHistory(auth.user.id, limit)
+    }
+
+    async function markAsRead(notificationId: number) {
+        return await notificationService.markAsRead(notificationId)
+    }
+
     return {
         permission,
         isSupported,
@@ -142,6 +168,10 @@ export function useNotifications() {
         checkTodayTasks,
         checkOverdueTasks,
         scheduleTaskReminders,
-        showUrgentReminders
+        showUrgentReminders,
+        getPreferences,
+        updatePreferences,
+        getHistory,
+        markAsRead
     }
 }

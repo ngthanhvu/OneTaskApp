@@ -20,6 +20,13 @@
                 <span>Task</span>
             </RouterLink>
 
+            <RouterLink to="/notifications"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
+                :class="{ 'bg-primary text-primary-content': $route.path === '/notifications' }">
+                <BellRing class="w-5 h-5" />
+                <span>Notifications</span>
+            </RouterLink>
+
             <RouterLink to="/profile"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
                 :class="{ 'bg-primary text-primary-content': $route.path === '/profile' }">
@@ -41,7 +48,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LayoutDashboard, DoorClosedIcon, CalendarCheck2, ShieldUser } from 'lucide-vue-next'
+import { LayoutDashboard, DoorClosedIcon, CalendarCheck2, BellRing, ShieldUser } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import router from '../router'

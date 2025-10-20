@@ -14,25 +14,17 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div v-if="isSupported" class="flex items-center gap-2">
-                        <div class="badge" :class="permissionClass">
+                    <div v-if="isSupported" class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <div class="badge badge-sm" :class="permissionClass">
                             {{ permissionText }}
                         </div>
                         <button 
                             v-if="!canNotify" 
-                            class="btn btn-primary btn-sm"
+                            class="btn btn-primary btn-xs sm:btn-sm"
                             @click="requestPermission"
                             :disabled="isRequesting"
                         >
                             {{ isRequesting ? 'Đang xin phép...' : 'Bật thông báo' }}
-                        </button>
-                        <button 
-                            v-else 
-                            class="btn btn-ghost btn-sm"
-                            @click="testNotification"
-                            :disabled="isTesting"
-                        >
-                            {{ isTesting ? 'Đang gửi...' : 'Test' }}
                         </button>
                     </div>
                     <div v-else class="text-xs text-base-content/50">
@@ -62,7 +54,6 @@ import { useNotifications } from '../../composables/useNotifications'
 
 const notifications = useNotifications()
 const isRequesting = ref(false)
-const isTesting = ref(false)
 
 const { isSupported, canNotify, permission } = notifications
 
@@ -105,30 +96,15 @@ const permissionClass = computed(() => {
 async function requestPermission() {
     isRequesting.value = true
     try {
-        await notifications.requestPermission()
+        const granted = await notifications.requestPermission()
+        if (!granted) {
+            console.warn('Notification permission denied by user')
+        }
+    } catch (error) {
+        console.error('Failed to request notification permission:', error)
     } finally {
         isRequesting.value = false
     }
 }
 
-async function testNotification() {
-    isTesting.value = true
-    try {
-        await notifications.showTaskReminder({
-            id: 999,
-            title: 'Test Notification',
-            date: new Date().toISOString().slice(0, 10),
-            priority: 'medium',
-            done: false,
-            description: null,
-            status: 0,
-            tags: [],
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            user_id: 'test'
-        })
-    } finally {
-        isTesting.value = false
-    }
-}
 </script>

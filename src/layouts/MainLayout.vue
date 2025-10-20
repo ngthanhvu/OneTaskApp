@@ -22,6 +22,9 @@
             <router-link to="/tasks/today" :class="[{ 'dock-active': $route.name === 'TaskToday' }]">
                 <CalendarDays class="size-[1.2em]" /><span class="dock-label">To day</span>
             </router-link>
+            <router-link to="/notifications" :class="[{ 'dock-active': $route.name === 'NotificationsPage' }]">
+                <BellRing class="size-[1.2em]" /><span class="dock-label">Notifications</span>
+            </router-link>
             <router-link to="/profile" :class="[{ 'dock-active': $route.name === 'profile' }]">
                 <User class="size-[1.2em]" /><span class="dock-label">Profile</span>
             </router-link>
@@ -32,7 +35,7 @@
 <script setup lang="ts">
 import Sidebar from '../components/Sidebar.vue';
 import Navbar from '../components/Navbar.vue';
-import { Home, ListCheck, CalendarDays, User } from 'lucide-vue-next'
+import { Home, ListCheck, CalendarDays, BellRing, User } from 'lucide-vue-next'
 </script>
 
 <style scoped></style>

@@ -12,6 +12,8 @@ import NotificationsPage from '../pages/notifications/NotificationsPage.vue';
 
 import Login from '../pages/auth/Login.vue';
 import Profile from '../pages/auth/Profile.vue';
+import ForgotPassword from '../pages/auth/Forgot.vue';
+import ResetPassword from '../pages/auth/Reset.vue';
 
 import NotFound from '../pages/NotFound.vue';
 
@@ -54,6 +56,16 @@ const routes = [
         path: '/login',
         name: 'login',
         component: Login
+    },
+    {
+        path: '/forgot-password',
+        name: 'forgot-password',
+        component: ForgotPassword
+    }, 
+    {
+        path: '/reset-password',
+        name: 'reset-password',
+        component: ResetPassword
     },
     {
         path: '/:pathMatch(.*)*',

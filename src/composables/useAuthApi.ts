@@ -66,6 +66,12 @@ export function useAuthApi() {
         if (error) throw error
     }
 
+    async function resetPassword(email: string, redirectUrl: string) {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl })
+        if (error) throw error
+        return data
+    }
+
     function onAuthStateChange(callback: Parameters<typeof supabase.auth.onAuthStateChange>[0]) {
         return supabase.auth.onAuthStateChange(callback)
     }
@@ -78,6 +84,7 @@ export function useAuthApi() {
         signInWithPassword,
         signUp,
         signOut,
+        resetPassword,
         onAuthStateChange,
     }
 }

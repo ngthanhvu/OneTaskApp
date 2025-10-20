@@ -132,6 +132,20 @@ export const useAuthStore = defineStore('auth', () => {
         profileLoaded.value = false
     }
 
+    async function forgotPassword(email: string) {
+        loading.value = true;
+        try {
+            const redirectUrl = `${window.location.origin}/reset-password`;
+            await api.resetPassword(email, redirectUrl);
+            return true
+        } catch (err: any) {
+            error.value = err.message;
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     async function clearAvatar() {
         if (!user.value) return null
         if (!profileLoaded.value) {
@@ -161,6 +175,7 @@ export const useAuthStore = defineStore('auth', () => {
         register,
         logout,
         fetchUser,
+        forgotPassword,
         fetchUserProfile,
         saveUserProfile,
         clearAvatar,

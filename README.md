@@ -68,7 +68,6 @@ task-wan
 ├─ package.json
 ├─ public
 │  ├─ app.png
-│  ├─ app.svg
 │  ├─ image.png
 │  └─ vite.svg
 ├─ README.md

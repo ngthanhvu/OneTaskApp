@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Task, CreateTaskInput, UpdateTaskInput } from '../types/task'
+import type { Task, CreateTaskInput, UpdateTaskInput, TaskStatus } from '../types/task'
 import { useTasksApi, type TasksFilter } from '../composables/useTasksApi'
 import { useAuthStore } from './authStore'
 
@@ -70,6 +70,36 @@ export const useTasksStore = defineStore('tasks', () => {
         return updateTask(taskId, { done })
     }
 
+        async function reorderTasks(status: TaskStatus, newList: Task[]) {
+        if (!auth.user) throw new Error('Not authenticated')
+
+        // Update local state immediately
+        const others = tasks.value.filter(t => t.status !== status)
+        const updated = newList.map((t) => ({
+            ...t,
+            status,
+        }))
+        tasks.value = [...others, ...updated]
+
+        // Only update tasks that actually changed status
+        try {
+            const tasksToUpdate = newList.filter(task => {
+                const originalTask = tasks.value.find(t => t.id === task.id)
+                return originalTask && originalTask.status !== status
+            })
+
+            await Promise.all(
+                tasksToUpdate.map(task =>
+                    api.update(task.id, auth.user!.id, { status } as Partial<UpdateTaskInput>)
+                )
+            )
+        } catch (e: any) {
+            console.error('Reorder failed:', e)
+            // Refresh from server on error to restore correct state
+            await refresh()
+        }
+    }
+
     return {
         tasks,
         loading,
@@ -81,6 +111,7 @@ export const useTasksStore = defineStore('tasks', () => {
         updateTask,
         removeTask,
         toggleDone,
+        reorderTasks,
     }
 })
 

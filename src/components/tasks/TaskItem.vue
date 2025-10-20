@@ -1,6 +1,19 @@
 <template>
     <div class="group p-4 rounded-xl bg-base-100/80 shadow-sm hover:shadow-md border border-base-200 hover:border-base-300 transition-all 
-        flex flex-col justify-between min-h-[12rem] sm:min-h-[13rem] max-h-[auto]">
+        flex flex-col justify-between min-h-[12rem] sm:min-h-[13rem] max-h-[auto] cursor-move relative"
+        draggable="true"
+        @dragstart="onDragStart"
+        @dragend="onDragEnd">
+        <!-- Drag Handle -->
+        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="w-4 h-4 flex flex-col gap-0.5 cursor-move">
+                <div class="w-1 h-1 bg-base-content/30 rounded-full"></div>
+                <div class="w-1 h-1 bg-base-content/30 rounded-full"></div>
+                <div class="w-1 h-1 bg-base-content/30 rounded-full"></div>
+                <div class="w-1 h-1 bg-base-content/30 rounded-full"></div>
+            </div>
+        </div>
+
         <!-- Nội dung chính -->
         <div>
             <div class="flex items-start justify-between gap-3">
@@ -124,6 +137,17 @@ const priorityClass = computed(() => (local.priority === 'high' ? 'badge-error' 
 function changeStatus(newStatus: number) {
     local.status = newStatus
     emit('status-change', { ...local })
+}
+
+function onDragStart(event: DragEvent) {
+    if (event.dataTransfer) {
+        event.dataTransfer.setData('application/json', JSON.stringify(local))
+        event.dataTransfer.effectAllowed = 'move'
+    }
+}
+
+function onDragEnd() {
+    // Clean up any visual feedback
 }
 
 watch(() => props.task, val => Object.assign(local, val))

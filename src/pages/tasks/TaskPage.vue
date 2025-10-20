@@ -39,11 +39,11 @@
                     <span class="badge badge-ghost badge-sm">{{ backlog.length }}</span>
                 </div>
                 <div class="space-y-2">
-                    <TaskList :tasks="backlog" @edit="openForm" @delete="deleteTask" @view="openDetail" @update="updateTask"
-                        @status-change="updateTask" />
+                    <TaskList :tasks="backlog" @edit="openForm" @delete="deleteTask" @view="openDetail"
+                        @update="updateTask" @status-change="updateTask" />
                 </div>
             </div>
-            
+
             <div class="space-y-3">
                 <div class="flex items-center justify-between gap-2 bg-base-200 rounded-lg p-3">
                     <h3 class="font-semibold text-sm">Đang làm</h3>
@@ -54,7 +54,7 @@
                         @update="updateTask" @status-change="updateTask" />
                 </div>
             </div>
-            
+
             <div class="space-y-3">
                 <div class="flex items-center justify-between gap-2 bg-base-200 rounded-lg p-3">
                     <h3 class="font-semibold text-sm">Đã làm</h3>
@@ -68,30 +68,45 @@
         </div>
 
         <!-- Desktop Kanban - Grid Layout -->
-        <div class="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div class="space-y-2">
+        <div class="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-200px)]">
+            <div class="space-y-2 h-full flex flex-col">
                 <div class="flex items-center justify-between gap-2">
                     <h3 class="font-semibold truncate">Chưa làm</h3>
                     <span class="badge badge-ghost shrink-0">{{ backlog.length }}</span>
                 </div>
-                <TaskList :tasks="backlog" @edit="openForm" @delete="deleteTask" @view="openDetail" @update="updateTask"
-                    @status-change="updateTask" />
+                <div class="flex-1 p-2 border-2 border-dashed border-base-300 rounded-lg transition-colors overflow-y-auto"
+                    :class="{ 'border-primary bg-primary/5': dragOverColumn === 0 }"
+                    @dragover.prevent="dragOverColumn = 0" @dragleave="dragOverColumn = null"
+                    @drop.prevent="handleDrop(0, $event)">
+                    <TaskList :tasks="backlog" :draggable="true" @reorder="reorderTasks(0, $event)" @edit="openForm"
+                        @delete="deleteTask" @view="openDetail" @update="updateTask" @status-change="updateTask" />
+                </div>
             </div>
-            <div class="space-y-2">
+            <div class="space-y-2 h-full flex flex-col">
                 <div class="flex items-center justify-between gap-2">
                     <h3 class="font-semibold truncate">Đang làm</h3>
                     <span class="badge badge-info badge-outline shrink-0">{{ inProgress.length }}</span>
                 </div>
-                <TaskList :tasks="inProgress" @edit="openForm" @delete="deleteTask" @view="openDetail"
-                    @update="updateTask" @status-change="updateTask" />
+                <div class="flex-1 p-2 border-2 border-dashed border-base-300 rounded-lg transition-colors overflow-y-auto"
+                    :class="{ 'border-primary bg-primary/5': dragOverColumn === 1 }"
+                    @dragover.prevent="dragOverColumn = 1" @dragleave="dragOverColumn = null"
+                    @drop.prevent="handleDrop(1, $event)">
+                    <TaskList :tasks="inProgress" :draggable="true" @reorder="reorderTasks(1, $event)" @edit="openForm"
+                        @delete="deleteTask" @view="openDetail" @update="updateTask" @status-change="updateTask" />
+                </div>
             </div>
-            <div class="space-y-2">
+            <div class="space-y-2 h-full flex flex-col">
                 <div class="flex items-center justify-between gap-2">
                     <h3 class="font-semibold truncate">Đã làm</h3>
                     <span class="badge badge-success badge-outline shrink-0">{{ doneList.length }}</span>
                 </div>
-                <TaskList :tasks="doneList" @edit="openForm" @delete="deleteTask" @view="openDetail"
-                    @update="updateTask" @status-change="updateTask" />
+                <div class="flex-1 p-2 border-2 border-dashed border-base-300 rounded-lg transition-colors overflow-y-auto"
+                    :class="{ 'border-primary bg-primary/5': dragOverColumn === 2 }"
+                    @dragover.prevent="dragOverColumn = 2" @dragleave="dragOverColumn = null"
+                    @drop.prevent="handleDrop(2, $event)">
+                    <TaskList :tasks="doneList" :draggable="true" @reorder="reorderTasks(2, $event)" @edit="openForm"
+                        @delete="deleteTask" @view="openDetail" @update="updateTask" @status-change="updateTask" />
+                </div>
             </div>
         </div>
 
@@ -127,14 +142,15 @@
                         <label class="label cursor-pointer gap-2 shrink-0">
                             <span class="label-text text-sm">{{
                                 detailTask?.done ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'
-                            }}</span>
+                                }}</span>
                             <input type="checkbox" v-model="detailTask.done" class="toggle toggle-primary toggle-sm" />
                         </label>
                     </div>
                     <div>
                         <h5 class="font-medium mb-2">Mô tả</h5>
-                        <p class="text-base-content/70 whitespace-pre-line break-words" v-if="detailTask?.description">{{
-                            detailTask?.description }}</p>
+                        <p class="text-base-content/70 whitespace-pre-line break-words" v-if="detailTask?.description">
+                            {{
+                                detailTask?.description }}</p>
                         <p class="text-base-content/50 italic" v-else>Không có mô tả</p>
                     </div>
                 </div>
@@ -171,6 +187,7 @@ const detailModal = ref<HTMLDialogElement | null>(null)
 const detailTask = ref<any | null>(null)
 const filter = ref<'all' | 'today' | 'done' | 'todo'>('all')
 const today = new Date().toISOString().slice(0, 10)
+const dragOverColumn = ref<number | null>(null)
 const filteredTasks = computed(() => {
     const list = tasksStore.tasks as unknown as Task[]
     if (filter.value === 'today') return list.filter(t => t.date === today)
@@ -219,6 +236,35 @@ function closeDetail() {
 
 async function updateTask(updated: Partial<Task> & { id: number }) {
     await tasksStore.updateTask(updated.id, updated)
+}
+
+async function reorderTasks(status: number, newList: any[]) {
+    try {
+        // Use store method which handles both local state and persistence
+        await tasksStore.reorderTasks(status as any, newList)
+    } catch (error) {
+        console.error('Failed to reorder tasks:', error)
+        // Refresh from server on error
+        await tasksStore.refresh()
+    }
+}
+
+function handleDrop(targetStatus: number, event: DragEvent) {
+    dragOverColumn.value = null
+    
+    // Get the dragged task from the drag data
+    const taskData = event.dataTransfer?.getData('application/json')
+    if (!taskData) return
+    
+    try {
+        const task = JSON.parse(taskData)
+        if (task && task.id) {
+            // Update task status
+            updateTask({ ...task, status: targetStatus })
+        }
+    } catch (error) {
+        console.error('Failed to parse dragged task:', error)
+    }
 }
 
 onMounted(async () => {

@@ -56,7 +56,6 @@ class NotificationService {
             requireInteraction: options.requireInteraction || false
         })
 
-        // Save to history if userId provided
         if (userId && type) {
             try {
                 await this.api.addToHistory({
@@ -71,7 +70,6 @@ class NotificationService {
             }
         }
 
-        // Auto close after 5 seconds unless requireInteraction is true
         if (!options.requireInteraction) {
             setTimeout(() => {
                 notification.close()
@@ -83,13 +81,15 @@ class NotificationService {
                 window.focus()
                 notification.close()
                 
-                // Mark as clicked if notificationId available
                 if (options.tag && userId) {
                     const parts = options.tag.split('-')
                     if (parts.length > 1) {
-                        const notificationId = parseInt(parts[1])
-                        if (!isNaN(notificationId)) {
-                            this.api.markAsClicked(notificationId).catch(console.error)
+                        const idStr = parts[1]
+                        if (idStr) {
+                            const notificationId = parseInt(idStr, 10)
+                            if (!isNaN(notificationId)) {
+                                this.api.markAsClicked(notificationId).catch(console.error)
+                            }
                         }
                     }
                 }

@@ -29,7 +29,7 @@
                     </div>
 
                     <div v-else class="space-y-2 md:space-y-3">
-                        <div v-for="notification in notificationHistory" :key="notification.id"
+                        <div v-for="notification in paginatedHistory" :key="notification.id"
                             class="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-base-200/50 rounded-lg">
                             <div
                                 class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -49,6 +49,17 @@
                                 </span>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-4">
+                        <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-sm btn-ghost">
+                            Trước
+                        </button>
+                        <span class="text-sm">Trang {{ currentPage }} / {{ totalPages }}</span>
+                        <button @click="nextPage" :disabled="currentPage === totalPages" class="btn btn-sm btn-ghost">
+                            Sau
+                        </button>
                     </div>
                 </div>
             </div>
@@ -112,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Bell, History } from 'lucide-vue-next'
 import { useHead } from '@vueuse/head'
 import NotificationSettings from '../../components/notifications/NotificationSettings.vue'
@@ -144,6 +155,30 @@ const { isSupported, canNotify, requestPermission, checkTodayTasks: checkTodayTa
 
 const isChecking = ref(false)
 const notificationHistory = ref<NotificationHistoryItem[]>([])
+
+// Pagination
+const currentPage = ref(1)
+const itemsPerPage = 3
+const totalPages = computed(() => {
+    return Math.ceil(notificationHistory.value.length / itemsPerPage)
+})
+const paginatedHistory = computed(() => {
+    const startIndex = (currentPage.value - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return notificationHistory.value.slice(startIndex, endIndex)
+})
+
+function nextPage() {
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++
+    }
+}
+
+function prevPage() {
+    if (currentPage.value > 1) {
+        currentPage.value--
+    }
+}
 
 // Load notification history from API
 async function loadNotificationHistory() {

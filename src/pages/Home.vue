@@ -27,7 +27,7 @@
         <!-- Desktop Header -->
         <div class="hidden md:flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold">👋 {{ greeting }}, Vũ!</h1>
+                <h1 class="text-3xl font-bold">👋 {{ greeting }}, {{ fullName || 'Guest' }}!</h1>
                 <p class="text-base-content/70 sm:text-lg">
                     Hôm nay là <span class="font-medium">{{ todayFormatted }}</span>
                 </p>
@@ -264,6 +264,7 @@ import { CalendarDaysIcon, ChartNoAxesCombinedIcon, ClipboardClockIcon, LayoutLi
 import { computed, ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useTasksStore } from '../stores/tasksStore'
+import { useAuthStore } from '../stores/authStore'
 
 interface Task {
     id: number
@@ -284,6 +285,8 @@ useHead({
 })
 
 const tasksStore = useTasksStore()
+const authStore = useAuthStore()
+const fullName = computed(() => authStore.profile?.full_name || '')
 
 function getGreetingByHour(date: Date) {
     const hour = date.getHours()
@@ -382,6 +385,7 @@ function closeDetail() {
 
 onMounted(async () => {
     await tasksStore.fetchTasks()
+    await authStore.fetchUserProfile({ force: true })
 })
 </script>
 

@@ -11,6 +11,8 @@ import TaskDetail from '../pages/tasks/TaskDetail.vue';
 import Login from '../pages/auth/Login.vue';
 import Profile from '../pages/auth/Profile.vue';
 
+import NotFound from '../pages/NotFound.vue';
+
 const routes = [
     {
         path: '/',
@@ -43,6 +45,11 @@ const routes = [
         path: '/login',
         name: 'login',
         component: Login
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: NotFound
     }
 ];
 

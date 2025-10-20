@@ -2,12 +2,14 @@
   <Notivue v-slot="item">
     <Notification :item="item" />
   </Notivue>
+  <SplashScreen v-if="loading" />
   <router-view />
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onBeforeUnmount } from 'vue'
+import { onMounted, onBeforeUnmount, ref } from 'vue'
 import { Notivue, Notification } from 'notivue'
+import SplashScreen from './components/SplashScreen.vue'
 
 function applyMetaForTheme(theme: string | null) {
   const metaThemeColor = document.querySelector<HTMLMetaElement>('#meta-theme-color')
@@ -22,13 +24,13 @@ function applyMetaForTheme(theme: string | null) {
   }
 }
 
+const loading = ref(true)
+
 let themeObserver: MutationObserver | null = null
 
 onMounted(() => {
-  // Initialize once
   applyMetaForTheme(document.documentElement.getAttribute('data-theme'))
 
-  // Observe changes to data-theme
   themeObserver = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.type === 'attributes') {
@@ -42,6 +44,9 @@ onMounted(() => {
     attributes: true,
     attributeFilter: ['data-theme']
   })
+  setTimeout(() => {
+    loading.value = false
+  }, 1000)
 })
 
 onBeforeUnmount(() => {

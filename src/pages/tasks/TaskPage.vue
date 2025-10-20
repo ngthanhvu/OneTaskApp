@@ -31,6 +31,11 @@
             </div>
         </div>
 
+        <!-- Notification Settings -->
+        <div class="mb-4">
+            <NotificationSettings />
+        </div>
+
         <!-- Mobile Kanban - Vertical Stack -->
         <div class="md:hidden space-y-4">
             <div class="space-y-3">
@@ -169,7 +174,9 @@ import { useHead } from '@vueuse/head'
 import TaskList from '../../components/tasks/TaskList.vue'
 import TaskForm from '../../components/tasks/TaskForm.vue'
 import TaskFilterBar from '../../components/tasks/TaskFilterBar.vue'
+import NotificationSettings from '../../components/notifications/NotificationSettings.vue'
 import { useTasksStore } from '../../stores/tasksStore'
+import { useNotifications } from '../../composables/useNotifications'
 import type { CreateTaskInput, UpdateTaskInput, Task } from '../../types/task'
 
 useHead({
@@ -181,6 +188,7 @@ useHead({
 })
 
 const tasksStore = useTasksStore()
+const notifications = useNotifications()
 const modal = ref<HTMLDialogElement | null>(null)
 const currentTask = ref<any>(null)
 const detailModal = ref<HTMLDialogElement | null>(null)
@@ -269,5 +277,17 @@ function handleDrop(targetStatus: number, event: DragEvent) {
 
 onMounted(async () => {
     await tasksStore.fetchTasks()
+    
+    // Request notification permission and setup reminders
+    if (notifications.isSupported.value) {
+        await notifications.requestPermission()
+        
+        // Check for today's tasks and overdue tasks
+        await notifications.checkTodayTasks(tasksStore.tasks)
+        await notifications.checkOverdueTasks(tasksStore.tasks)
+        
+        // Schedule deadline reminders for upcoming tasks
+        await notifications.scheduleTaskReminders(tasksStore.tasks)
+    }
 })
 </script>

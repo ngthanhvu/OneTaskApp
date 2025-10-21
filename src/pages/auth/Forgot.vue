@@ -22,14 +22,11 @@
                     </div>
 
                     <button class="btn btn-primary w-full mt-2" type="submit" :disabled="loading || !email">
-                        <RefreshCcw />
-                        <span v-if="!loading">Send Reset Link</span>
+                        <span v-if="!loading" class="flex">
+                        <RefreshCcw class="mr-1" />Send Reset Link</span>
                         <span v-else class="loading loading-spinner loading-sm"></span>
                     </button>
                 </form>
-
-                <!-- Divider -->
-                <div class="divider text-xs text-base-content/60">Or</div>
 
                 <!-- Back to login -->
                 <div class="text-center">

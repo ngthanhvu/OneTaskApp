@@ -10,35 +10,35 @@
             <RouterLink to="/" class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
                 :class="{ 'bg-primary text-primary-content': $route.path === '/' }">
                 <LayoutDashboard class="w-5 h-5" />
-                <span>Dashboard</span>
+                <span>Tổng quan</span>
             </RouterLink>
 
             <RouterLink to="/tasks"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
                 :class="{ 'bg-primary text-primary-content': $route.path === '/tasks' }">
                 <CalendarCheck2 class="w-5 h-5" />
-                <span>Task</span>
+                <span>Nhiệm vụ</span>
             </RouterLink>
 
             <RouterLink to="/notifications"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
                 :class="{ 'bg-primary text-primary-content': $route.path === '/notifications' }">
                 <BellRing class="w-5 h-5" />
-                <span>Notifications</span>
+                <span>Thông báo</span>
             </RouterLink>
 
             <RouterLink to="/profile"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all"
                 :class="{ 'bg-primary text-primary-content': $route.path === '/profile' }">
                 <ShieldUser />
-                <span>Profile</span>
+                <span>Trang cá nhân</span>
             </RouterLink>
         </nav>
 
         <div class="p-4 border-t border-base-300">
             <button @click="confirmLogout" class="btn btn-soft btn-secondary w-full">
-                <DoorClosedIcon />
-                Logout
+                <LogOut />
+                Đăng xuất
             </button>
         </div>
         <ConfirmModal ref="logoutConfirm" title="Xác nhận đăng xuất"
@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LayoutDashboard, DoorClosedIcon, CalendarCheck2, BellRing, ShieldUser } from 'lucide-vue-next'
+import { LayoutDashboard, LogOut, CalendarCheck2, BellRing, ShieldUser } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import router from '../router'

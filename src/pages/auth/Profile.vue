@@ -27,62 +27,63 @@
         </div>
 
         <!-- Contact -->
-        <div class="space-y-3">
-            <h2 class="text-lg font-semibold mb-3">Liên hệ</h2>
-            <label class="form-control w-full">
-                <span class="label-text font-medium">Họ và tên <span class="text-red-500">*</span></span>
-                <input v-model="fullName" type="text" placeholder="Nhập họ và tên"
-                    class="input input-bordered w-full mt-2 focus:ring-1 focus:ring-primary" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div class="space-y-3">
+                <h2 class="text-lg font-semibold mb-3">Liên hệ</h2>
+                <label class="form-control w-full">
+                    <span class="label-text font-medium">Họ và tên <span class="text-red-500">*</span></span>
+                    <input v-model="fullName" type="text" placeholder="Nhập họ và tên"
+                        class="input input-bordered w-full mt-2 focus:ring-1 focus:ring-primary" />
 
-                <div class="mt-3">
-                    <span class="label-text font-medium">Email <span class="text-red-500">*</span></span>
-                    <input v-model="email" type="email" :readonly="!isEditingEmail"
-                        class="input mt-2 w-full bg-transparent focus:ring-1 focus:ring-primary"
-                        :class="{ 'input-bordered': isEditingEmail }" />
-                    <button class="btn btn-outline btn-md w-full sm:w-auto mt-3" @click="toggleEmailEdit">
-                        {{ isEditingEmail ? 'Lưu' : 'Thay đổi' }}
+                    <div class="mt-3">
+                        <span class="label-text font-medium">Email <span class="text-red-500">*</span></span>
+                        <input v-model="email" type="email" :readonly="!isEditingEmail"
+                            class="input mt-2 w-full bg-transparent focus:ring-1 focus:ring-primary"
+                            :class="{ 'input-bordered': isEditingEmail }" />
+                        <button class="btn btn-outline btn-md w-full sm:w-auto mt-3" @click="toggleEmailEdit">
+                            {{ isEditingEmail ? 'Lưu' : 'Thay đổi' }}
+                        </button>
+                    </div>
+                </label>
+            </div>
+
+            <div class="space-y-4 border-t border-base-200 pt-5">
+                <h2 class="text-lg font-semibold">Bảo mật</h2>
+
+                <div v-if="!qrData && !is2FAEnabled">
+                    <p class="text-sm text-base-content/70 mb-3">
+                        Bật xác thực 2 bước để tăng cường bảo mật tài khoản của bạn.
+                    </p>
+                    <button class="btn btn-outline btn-primary w-full" @click="setup2FA" :disabled="loading">
+                        Bật xác thực hai bước (2FA)
                     </button>
                 </div>
-            </label>
-        </div>
 
-        <!-- Security -->
-        <div class="space-y-4 border-t border-base-200 pt-5">
-            <h2 class="text-lg font-semibold">Bảo mật</h2>
-
-            <div v-if="!qrData && !is2FAEnabled">
-                <p class="text-sm text-base-content/70 mb-3">
-                    Bật xác thực 2 bước để tăng cường bảo mật tài khoản của bạn.
-                </p>
-                <button class="btn btn-outline btn-primary w-full" @click="setup2FA" :disabled="loading">
-                    Bật xác thực hai bước (2FA)
-                </button>
-            </div>
-
-            <!-- Khi đã có QR code -->
-            <div v-if="qrData" class="text-center space-y-4">
-                <img :src="qrData.qr_code" alt="QR code" class="w-40 mx-auto" />
-                <p class="text-sm text-base-content/70">
-                    Quét mã QR bằng ứng dụng Google Authenticator hoặc Authy.
-                </p>
-                <input v-model="otp" maxlength="6" placeholder="Nhập mã 6 số"
-                    class="input input-bordered w-full text-center" />
-                <button class="btn btn-primary w-full" @click="confirmSetup" :disabled="!otp || loading">
-                    <span v-if="!loading">Xác nhận</span>
-                    <span v-else class="loading loading-spinner loading-sm"></span>
-                </button>
-            </div>
-
-            <!-- Khi đã bật 2FA -->
-            <div v-if="is2FAEnabled && !qrData"
-                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                    <p class="text-sm text-success font-medium">Xác thực hai bước đang bật</p>
-                    <p class="text-xs text-base-content/60">Tài khoản của bạn được bảo vệ thêm một lớp.</p>
+                <!-- Khi đã có QR code -->
+                <div v-if="qrData" class="text-center space-y-4">
+                    <img :src="qrData.qr_code" alt="QR code" class="w-40 mx-auto" />
+                    <p class="text-sm text-base-content/70">
+                        Quét mã QR bằng ứng dụng Google Authenticator hoặc Authy.
+                    </p>
+                    <input v-model="otp" maxlength="6" placeholder="Nhập mã 6 số"
+                        class="input input-bordered w-full text-center" />
+                    <button class="btn btn-primary w-full" @click="confirmSetup" :disabled="!otp || loading">
+                        <span v-if="!loading">Xác nhận</span>
+                        <span v-else class="loading loading-spinner loading-sm"></span>
+                    </button>
                 </div>
-                <button class="btn btn-outline btn-error btn-sm" @click="disable2FA" :disabled="loading">
-                    Tắt 2FA
-                </button>
+
+                <!-- Khi đã bật 2FA -->
+                <div v-if="is2FAEnabled && !qrData"
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <p class="text-sm text-success font-medium">Xác thực hai bước đang bật</p>
+                        <p class="text-xs text-base-content/60">Tài khoản của bạn được bảo vệ thêm một lớp.</p>
+                    </div>
+                    <button class="btn btn-outline btn-error btn-sm" @click="disable2FA" :disabled="loading">
+                        Tắt 2FA
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -90,7 +91,7 @@
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6 border-t border-base-200">
             <button class="btn btn-outline btn-error w-full sm:hidden" @click="confirmLogout">
                 <LogOut class="w-4 h-4" />
-                Logout
+                Đăng xuất
             </button>
             <button class="btn btn-outline hidden sm:inline-flex w-full sm:w-auto">Cancel</button>
             <button class="btn btn-primary w-full sm:w-auto" @click="saveProfile" :disabled="loading">

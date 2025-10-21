@@ -14,19 +14,19 @@
         <!-- Mobile bottom dock navigation (DaisyUI dock) -->
         <nav class="dock md:hidden z-50 fixed bottom-0 left-0 right-0">
             <router-link to="/" :class="[{ 'dock-active': $route.name === 'home' }]">
-                <Home class="size-[1.2em]" /><span class="dock-label">Home</span>
+                <Home class="size-[1.2em]" /><span class="dock-label">Trang chủ</span>
             </router-link>
             <router-link to="/tasks" :class="[{ 'dock-active': $route.name === 'TaskPage' }]">
-                <ListCheck class="size-[1.2em]" /><span class="dock-label">Tasks</span>
+                <ListCheck class="size-[1.2em]" /><span class="dock-label">Nhiệm vụ</span>
             </router-link>
             <router-link to="/tasks/today" :class="[{ 'dock-active': $route.name === 'TaskToday' }]">
-                <CalendarDays class="size-[1.2em]" /><span class="dock-label">To day</span>
+                <CalendarDays class="size-[1.2em]" /><span class="dock-label">Hôm nay</span>
             </router-link>
             <router-link to="/notifications" :class="[{ 'dock-active': $route.name === 'NotificationsPage' }]">
-                <BellRing class="size-[1.2em]" /><span class="dock-label">Notifications</span>
+                <BellRing class="size-[1.2em]" /><span class="dock-label">Thông báo</span>
             </router-link>
             <router-link to="/profile" :class="[{ 'dock-active': $route.name === 'profile' }]">
-                <User class="size-[1.2em]" /><span class="dock-label">Profile</span>
+                <User class="size-[1.2em]" /><span class="dock-label">Cá nhân</span>
             </router-link>
         </nav>
     </div>

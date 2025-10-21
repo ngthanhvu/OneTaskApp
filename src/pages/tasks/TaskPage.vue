@@ -175,7 +175,7 @@ import { useNotifications } from '../../composables/useNotifications'
 import type { CreateTaskInput, UpdateTaskInput, Task } from '../../types/task'
 
 useHead({
-    title: 'Task | Task Wan',
+    title: 'Chi tiết công việc | Task Wan',
     meta: [
         { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
         { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },

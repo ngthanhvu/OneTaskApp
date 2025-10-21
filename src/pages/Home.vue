@@ -160,28 +160,18 @@
             </div>
         </div>
 
-        <!-- Progress section -->
-        <div class="hidden md:block">
-            <div class="flex items-center space-x-2 mb-2">
-                <ChartNoAxesCombinedIcon class="w-5 h-5" />
-                <h2 class="text-2xl font-semibold">Tiến độ tuần này</h2>
+        <!-- Charts section -->
+        <div class="space-y-6">
+            <!-- Desktop Charts -->
+            <div class="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <TaskStatsChart :tasks="tasksStore.tasks" />
+                <TaskPieChart :tasks="tasksStore.tasks" />
             </div>
-            <div class="bg-base-100 p-5 rounded-2xl shadow-md border border-base-300">
-                <progress class="progress progress-primary w-full" :value="donePercent" max="100"></progress>
-                <p class="text-sm text-base-content/70 text-center mt-2">
-                    {{ donePercent }}% công việc đã hoàn thành
-                </p>
-            </div>
-        </div>
 
-        <!-- Mobile Progress -->
-        <div class="md:hidden">
-            <div class="bg-base-100 rounded-xl p-4 shadow border border-base-300">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-semibold text-sm">Tiến độ hôm nay</h3>
-                    <span class="text-xs text-base-content/70">{{ donePercent }}%</span>
-                </div>
-                <progress class="progress progress-primary w-full h-2" :value="donePercent" max="100"></progress>
+            <!-- Mobile Charts -->
+            <div class="md:hidden space-y-4">
+                <TaskStatsChart :tasks="tasksStore.tasks" />
+                <TaskPieChart :tasks="tasksStore.tasks" />
             </div>
         </div>
 
@@ -260,11 +250,13 @@
 </template>
 
 <script setup lang="ts">
-import { CalendarDaysIcon, ChartNoAxesCombinedIcon, ClipboardClockIcon, LayoutList } from 'lucide-vue-next'
+import { CalendarDaysIcon, ClipboardClockIcon, LayoutList } from 'lucide-vue-next'
 import { computed, ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useTasksStore } from '../stores/tasksStore'
 import { useAuthStore } from '../stores/authStore'
+import TaskStatsChart from '../components/charts/TaskStatsChart.vue'
+import TaskPieChart from '../components/charts/TaskPieChart.vue'
 
 interface Task {
     id: number
@@ -277,7 +269,7 @@ interface Task {
 }
 
 useHead({
-    title: 'Home | Task Wan',
+    title: 'Trang chủ | Task Wan',
     meta: [
         { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
         { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },

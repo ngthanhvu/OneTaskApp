@@ -1,109 +1,169 @@
 <template>
-    <div class="mx-auto bg-base-100 rounded-2xl shadow-md border border-base-300 p-5 sm:p-8 space-y-8">
-        <!-- Header -->
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold mb-1">Profile</h1>
-            <p class="text-base-content/70">Cập nhật thông tin cá nhân và bảo mật tài khoản</p>
-        </div>
+    <div class="bg-base-200 py-4 px-4">
+        <div class="mx-auto">
+            <!-- Header -->
+            <div class="mb-6">
+                <h1 class="text-2xl sm:text-3xl font-bold mb-2">Profile</h1>
+                <p class="text-base-content/70">Cập nhật thông tin cá nhân và bảo mật tài khoản</p>
+            </div>
 
-        <!-- Profile photo -->
-        <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-            <div class="avatar self-center sm:self-auto relative">
-                <div
-                    class="w-24 sm:w-28 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
-                    <img :src="photoUrl || '/image.png'" alt="Profile photo" />
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column: Profile Photo & Basic Info -->
+                <div class="lg:col-span-1">
+                    <div class="card bg-base-100 shadow-md border border-base-300">
+                        <div class="card-body">
+                            <h2 class="card-title text-lg mb-4">Thông tin cá nhân</h2>
+                            
+                            <!-- Profile Photo -->
+                            <div class="flex flex-col items-center space-y-4">
+                                <div class="avatar relative">
+                                    <div class="w-24 sm:w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
+                                        <img :src="photoUrl || '/image.png'" alt="Profile photo" />
+                                    </div>
+                                    <button v-if="photoUrl" @click="removePhoto"
+                                        class="btn btn-xs btn-circle btn-error absolute bottom-0 right-0 -mr-1 -mb-1">
+                                        <CircleX class="w-4 h-4" />
+                                    </button>
+                                </div>
+                                <button class="btn btn-outline btn-sm" @click="uploadPhoto">
+                                    + Upload photo
+                                </button>
+                                <p class="text-xs text-base-content/70 text-center">
+                                    Hỗ trợ JPG, PNG, GIF. Dung lượng tối đa 500KB.
+                                </p>
+                            </div>
+
+                            <!-- Basic Info -->
+                            <div class="space-y-4 mt-6">
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">Họ và tên <span class="text-red-500">*</span></span>
+                                    </label>
+                                    <input v-model="fullName" type="text" placeholder="Nhập họ và tên"
+                                        class="input input-bordered w-full focus:ring-1 focus:ring-primary" />
+                                </div>
+
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">Email <span class="text-red-500">*</span></span>
+                                    </label>
+                                    <input v-model="email" type="email" :readonly="!isEditingEmail"
+                                        class="input w-full focus:ring-1 focus:ring-primary"
+                                        :class="{ 'input-bordered': isEditingEmail, 'bg-base-200': !isEditingEmail }" />
+                                    <button class="btn btn-primary btn-sm w-full mt-2" @click="toggleEmailEdit">
+                                        {{ isEditingEmail ? 'Lưu' : 'Thay đổi' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button v-if="photoUrl" @click="removePhoto"
-                    class="btn btn-xs btn-circle btn-error absolute bottom-0 right-0 -mr-1 -mb-1">
-                    <CircleX class="w-4 h-4" />
+
+                <!-- Right Column: Security Settings -->
+                <div class="lg:col-span-2">
+                    <div class="card bg-base-100 shadow-md border border-base-300">
+                        <div class="card-body">
+                            <h2 class="card-title text-lg mb-6">Bảo mật tài khoản</h2>
+
+                            <!-- 2FA Section -->
+                            <div class="space-y-6">
+                                <!-- 2FA Setup/Status -->
+                                <div class="border border-base-300 rounded-lg p-4">
+                                    <h3 class="text-md font-semibold mb-4 flex items-center gap-2">
+                                        <div class="w-2 h-2 rounded-full" :class="is2FAEnabled ? 'bg-success' : 'bg-warning'"></div>
+                                        Xác thực hai bước (2FA)
+                                    </h3>
+
+                                    <!-- Not enabled -->
+                                    <div v-if="!qrData && !is2FAEnabled">
+                                        <p class="text-sm text-base-content/70 mb-4">
+                                            Bật xác thực 2 bước để tăng cường bảo mật tài khoản của bạn.
+                                        </p>
+                                        <button class="btn btn-primary w-full sm:w-auto" @click="setup2FA" :disabled="loading">
+                                            Bật xác thực hai bước
+                                        </button>
+                                    </div>
+
+                                    <!-- QR Code Setup -->
+                                    <div v-if="qrData" class="text-center space-y-4">
+                                        <img :src="qrData.qr_code" alt="QR code" class="w-40 mx-auto" />
+                                        <p class="text-sm text-base-content/70">
+                                            Quét mã QR bằng ứng dụng Google Authenticator hoặc Authy.
+                                        </p>
+                                        <div class="text-sm text-base-content/80">
+                                            <p class="font-semibold">Hoặc nhập thủ công:</p>
+                                            <div class="mt-1 font-mono break-words bg-base-200 rounded p-2 inline-block">
+                                                {{ qrData.secret }}
+                                            </div>
+                                            <button class="btn btn-outline btn-sm ml-2" @click="copyToClipboard(qrData.secret)">Sao chép</button>
+                                        </div>
+                                        <input v-model="otp" maxlength="6" placeholder="Nhập mã 6 số"
+                                            class="input input-bordered w-full text-center" />
+                                        <button class="btn btn-primary w-full" @click="confirmSetup" :disabled="!otp || loading">
+                                            <span v-if="!loading">Xác nhận</span>
+                                            <span v-else class="loading loading-spinner loading-sm"></span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Enabled -->
+                                    <div v-if="is2FAEnabled && !qrData" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm text-success font-medium">Xác thực hai bước đang bật</p>
+                                            <p class="text-xs text-base-content/60">Tài khoản của bạn được bảo vệ thêm một lớp.</p>
+                                        </div>
+                                        <button class="btn btn-outline btn-error btn-sm" @click="disable2FA" :disabled="loading">
+                                            Tắt 2FA
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Password Change -->
+                                <div class="border border-base-300 rounded-lg p-4">
+                                    <h3 class="text-md font-semibold mb-4">Đổi mật khẩu</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div class="form-control">
+                                            <label class="label">
+                                                <span class="label-text font-medium">Mật khẩu mới</span>
+                                            </label>
+                                            <input v-model="newPassword" type="password" placeholder="Nhập mật khẩu mới"
+                                                class="input input-bordered w-full focus:ring-1 focus:ring-primary" />
+                                        </div>
+                                        <div class="form-control">
+                                            <label class="label">
+                                                <span class="label-text font-medium">Xác nhận mật khẩu mới</span>
+                                            </label>
+                                            <input v-model="confirmNewPassword" type="password" placeholder="Xác nhận mật khẩu mới"
+                                                class="input input-bordered w-full focus:ring-1 focus:ring-primary" />
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary w-full sm:w-auto mt-4" @click="changePassword" :disabled="loading">
+                                        Lưu mật khẩu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-3 mt-6">
+                <button class="inline-flex btn btn-outline btn-error w-full sm:w-auto sm:hidden" @click="confirmLogout">
+                    <LogOut class="w-4 h-4" />
+                    Đăng xuất
+                </button>
+                <button class="btn btn-primary w-full sm:w-auto" @click="saveProfile" :disabled="loading">
+                    <Save v-if="!loading" class="w-4 h-4" />
+                    <span v-if="!loading">Lưu thay đổi</span>
+                    <span v-else class="loading loading-spinner loading-sm"></span>
                 </button>
             </div>
-            <div class="text-center sm:text-left">
-                <button class="btn btn-outline btn-sm mb-2" @click="uploadPhoto">+ Upload photo</button>
-                <p class="text-xs text-base-content/70">
-                    Hỗ trợ JPG, PNG, GIF. Dung lượng tối đa 500KB.
-                </p>
-            </div>
+
+            <ConfirmModal ref="logoutConfirm" title="Xác nhận đăng xuất"
+                message="Bạn có chắc muốn đăng xuất khỏi tài khoản không?" actions="Đăng xuất" type="error"
+                @confirm="handleLogout" />
         </div>
-
-        <!-- Contact -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div class="space-y-3">
-                <h2 class="text-lg font-semibold mb-3">Liên hệ</h2>
-                <label class="form-control w-full">
-                    <span class="label-text font-medium">Họ và tên <span class="text-red-500">*</span></span>
-                    <input v-model="fullName" type="text" placeholder="Nhập họ và tên"
-                        class="input input-bordered w-full mt-2 focus:ring-1 focus:ring-primary" />
-
-                    <div class="mt-3">
-                        <span class="label-text font-medium">Email <span class="text-red-500">*</span></span>
-                        <input v-model="email" type="email" :readonly="!isEditingEmail"
-                            class="input mt-2 w-full bg-transparent focus:ring-1 focus:ring-primary"
-                            :class="{ 'input-bordered': isEditingEmail }" />
-                        <button class="btn btn-outline btn-md w-full sm:w-auto mt-3" @click="toggleEmailEdit">
-                            {{ isEditingEmail ? 'Lưu' : 'Thay đổi' }}
-                        </button>
-                    </div>
-                </label>
-            </div>
-
-            <div class="space-y-4 border-t border-base-200 pt-5">
-                <h2 class="text-lg font-semibold">Bảo mật</h2>
-
-                <div v-if="!qrData && !is2FAEnabled">
-                    <p class="text-sm text-base-content/70 mb-3">
-                        Bật xác thực 2 bước để tăng cường bảo mật tài khoản của bạn.
-                    </p>
-                    <button class="btn btn-outline btn-primary w-full" @click="setup2FA" :disabled="loading">
-                        Bật xác thực hai bước (2FA)
-                    </button>
-                </div>
-
-                <!-- Khi đã có QR code -->
-                <div v-if="qrData" class="text-center space-y-4">
-                    <img :src="qrData.qr_code" alt="QR code" class="w-40 mx-auto" />
-                    <p class="text-sm text-base-content/70">
-                        Quét mã QR bằng ứng dụng Google Authenticator hoặc Authy.
-                    </p>
-                    <input v-model="otp" maxlength="6" placeholder="Nhập mã 6 số"
-                        class="input input-bordered w-full text-center" />
-                    <button class="btn btn-primary w-full" @click="confirmSetup" :disabled="!otp || loading">
-                        <span v-if="!loading">Xác nhận</span>
-                        <span v-else class="loading loading-spinner loading-sm"></span>
-                    </button>
-                </div>
-
-                <!-- Khi đã bật 2FA -->
-                <div v-if="is2FAEnabled && !qrData"
-                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <p class="text-sm text-success font-medium">Xác thực hai bước đang bật</p>
-                        <p class="text-xs text-base-content/60">Tài khoản của bạn được bảo vệ thêm một lớp.</p>
-                    </div>
-                    <button class="btn btn-outline btn-error btn-sm" @click="disable2FA" :disabled="loading">
-                        Tắt 2FA
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6 border-t border-base-200">
-            <button class="btn btn-outline btn-error w-full sm:hidden" @click="confirmLogout">
-                <LogOut class="w-4 h-4" />
-                Đăng xuất
-            </button>
-            <button class="btn btn-outline hidden sm:inline-flex w-full sm:w-auto">Cancel</button>
-            <button class="btn btn-primary w-full sm:w-auto" @click="saveProfile" :disabled="loading">
-                <Save v-if="!loading" />
-                <span v-if="!loading">Lưu thay đổi</span>
-                <span v-else class="loading loading-spinner loading-sm"></span>
-            </button>
-        </div>
-
-        <ConfirmModal ref="logoutConfirm" title="Xác nhận đăng xuất"
-            message="Bạn có chắc muốn đăng xuất khỏi tài khoản không?" actions="Đăng xuất" type="error"
-            @confirm="handleLogout" />
     </div>
 </template>
 
@@ -119,7 +179,7 @@ import { useHead } from '@vueuse/head'
 import ConfirmModal from '../../components/common/ConfirmModal.vue'
 
 useHead({
-    title: 'Profile | Task Wan',
+    title: 'Hồ sơ | Task Wan',
     meta: [
         { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
         { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },
@@ -141,6 +201,34 @@ const qrData = ref<any>(null)
 const otp = ref('')
 const is2FAEnabled = ref(false)
 const factorId = ref<string | null>(null)
+
+const newPassword = ref('')
+const confirmNewPassword = ref('')
+
+async function changePassword() {
+    if (newPassword.value !== confirmNewPassword.value) {
+        push.error('Mật khẩu mới không khớp!')
+        return
+    }
+    if (!newPassword.value || newPassword.value.length < 6) {
+        push.error('Mật khẩu phải có ít nhất 6 ký tự!')
+        return
+    }
+
+    loading.value = true
+    try {
+        const { error } = await supabase.auth.updateUser({ password: newPassword.value })
+        if (error) throw error
+        push.success('Đổi mật khẩu thành công!')
+        newPassword.value = ''
+        confirmNewPassword.value = ''
+    } catch (err) {
+        console.error(err)
+        push.error('Đổi mật khẩu thất bại. Vui lòng thử lại!')
+    } finally {
+        loading.value = false
+    }
+}
 
 function confirmLogout() {
     logoutConfirm.value?.open()
@@ -203,6 +291,7 @@ async function setup2FA() {
     loading.value = true
     try {
         const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' })
+
         if (error) throw error
 
         qrData.value = data.totp
@@ -290,6 +379,11 @@ async function saveProfile() {
     } finally {
         loading.value = false
     }
+}
+function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text)
+        .then(() => push.success('Sao chép thành công!'))
+        .catch(() => push.error('Sao chép thất bại!'))
 }
 
 function handleLogout() {

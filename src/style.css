@@ -4,6 +4,10 @@
     themes: light --default, dark --prefersdark, cupcake, dim;
 }
 
+:root {
+    --color-primary: #81aacc
+}
+
 body {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);

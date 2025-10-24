@@ -41,7 +41,7 @@ const getThemeColors = () => {
             axisLabel: '#9ca3af',
             axisLine: '#4b5563',
             gridLine: '#374151',
-            completed: '#605DFF',
+            completed: '#81aacc',
             remaining: '#f59e0b'
         }
     } else {
@@ -53,7 +53,7 @@ const getThemeColors = () => {
             axisLabel: '#6b7280',
             axisLine: '#d1d5db',
             gridLine: '#e5e7eb',
-            completed: '#605DFF',
+            completed: '#81aacc',
             remaining: '#f59e0b'
         }
     }

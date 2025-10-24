@@ -44,7 +44,7 @@
 
 .loader {
     --path: #6b7280;
-    --dot: #6366f1;
+    --dot: #81aacc;
     --duration: 3s;
     width: 44px;
     height: 44px;

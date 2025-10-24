@@ -10,6 +10,8 @@ import TaskDetail from '../pages/tasks/TaskDetail.vue';
 
 import NotificationsPage from '../pages/notifications/NotificationsPage.vue';
 
+import Calendar from '../pages/Calendar.vue';
+
 import Login from '../pages/auth/Login.vue';
 import Profile from '../pages/auth/Profile.vue';
 import ForgotPassword from '../pages/auth/Forgot.vue';
@@ -32,6 +34,12 @@ const routes = [
                 path: 'profile',
                 name: 'profile',
                 component: Profile,
+                meta: { requiresAuth: true }
+            },
+            {
+                path: 'calendar',
+                name: 'calendar',
+                component: Calendar,
                 meta: { requiresAuth: true }
             }
         ]

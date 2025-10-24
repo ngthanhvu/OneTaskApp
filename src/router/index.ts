@@ -11,6 +11,7 @@ import TaskDetail from '../pages/tasks/TaskDetail.vue';
 import NotificationsPage from '../pages/notifications/NotificationsPage.vue';
 
 import Calendar from '../pages/Calendar.vue';
+import Setting from '../pages/Setting.vue'
 
 import Login from '../pages/auth/Login.vue';
 import Profile from '../pages/auth/Profile.vue';
@@ -40,6 +41,12 @@ const routes = [
                 path: 'calendar',
                 name: 'calendar',
                 component: Calendar,
+                meta: { requiresAuth: true }
+            },
+            {
+                path: 'settings',
+                name: 'setting',
+                component: Setting,
                 meta: { requiresAuth: true }
             }
         ]

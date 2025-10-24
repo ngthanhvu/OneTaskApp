@@ -14,34 +14,25 @@
                 <Sun v-if="theme === 'light'" class="w-5 h-5" />
                 <Moon v-else class="w-5 h-5" />
             </button>
-            <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                    <div class="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                        <img :src="avatarUrl" />
-                    </div>
-                </div>
-            </div>
+            <router-link to="/notifications" class="hidden md:flex btn btn-ghost btn-circle">
+                <BellRing class="w-5 h-5" />
+            </router-link>
         </div>
     </header>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { Sun, Moon } from 'lucide-vue-next'
+import { Sun, Moon, BellRing } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore';
 import { storeToRefs } from 'pinia';
 
 const authStore = useAuthStore();
-const { profile, profileLoaded, user } = storeToRefs(authStore)
+const { profile, user } = storeToRefs(authStore)
 
 const theme = ref<'light' | 'dark'>('light')
 const search = ref('')
 const fullName = computed(() => profile.value?.full_name || user.value?.user_metadata?.full_name || '')
-
-const avatarUrl = computed(() => {
-    if (!profileLoaded.value) return '/image.png'
-    return profile.value?.avatar_url || '/image.png'
-})
 
 onMounted(async () => {
     theme.value = localStorage.getItem('theme') as 'light' | 'dark' || 'light'

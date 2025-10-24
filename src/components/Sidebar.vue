@@ -41,17 +41,6 @@
                 <span class="font-medium">Lịch</span>
             </RouterLink>
 
-            <RouterLink to="/notifications"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all">
-                <div class="w-8 h-8 flex items-center justify-center rounded-xl transition-all" :class="{
-                    'bg-primary text-primary-content': $route.path === '/notifications',
-                    'text-base-content/70 hover:bg-base-200': $route.path !== '/notifications'
-                }">
-                    <BellRing class="w-5 h-5" />
-                </div>
-                <span class="font-medium">Thông báo</span>
-            </RouterLink>
-
             <RouterLink to="/profile"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all">
                 <div class="w-8 h-8 flex items-center justify-center rounded-xl transition-all" :class="{
@@ -61,6 +50,17 @@
                     <ShieldUser class="w-5 h-5" />
                 </div>
                 <span class="font-medium">Trang cá nhân</span>
+            </RouterLink>
+
+            <RouterLink to="/settings"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-base-content/90 transition-all">
+                <div class="w-8 h-8 flex items-center justify-center rounded-xl transition-all" :class="{
+                    'bg-primary text-primary-content': $route.path === '/settings',
+                    'text-base-content/70 hover:bg-base-200': $route.path !== '/settings'
+                }">
+                    <Cog class="w-5 h-5" />
+                </div>
+                <span class="font-medium">Cài đặt</span>
             </RouterLink>
         </nav>
 
@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { LayoutDashboard, LogOut, CalendarCheck2, BellRing, ShieldUser, ListChecks } from 'lucide-vue-next'
+import { LayoutDashboard, LogOut, CalendarCheck2, ShieldUser, ListChecks, Cog} from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import { useTasksStore } from '../stores/tasksStore'

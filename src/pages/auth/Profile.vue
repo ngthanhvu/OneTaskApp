@@ -51,8 +51,8 @@
                                     <input v-model="email" type="email" :readonly="!isEditingEmail"
                                         class="input w-full focus:ring-1 focus:ring-primary"
                                         :class="{ 'input-bordered': isEditingEmail, 'bg-base-200': !isEditingEmail }" />
-                                    <button class="btn btn-primary btn-sm w-full mt-2" @click="toggleEmailEdit">
-                                        {{ isEditingEmail ? 'Lưu' : 'Thay đổi' }}
+                                    <button class="btn btn-primary btn-sm w-full mt-2" @click="toggleEmailEdit" :disabled="loading">
+                                        {{ isEditingEmail ? 'Lưu thay đổi' : 'Thay đổi' }}
                                     </button>
                                 </div>
                             </div>
@@ -148,11 +148,7 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row sm:justify-between gap-3 mt-6">
-                <button class="inline-flex btn btn-outline btn-error w-full sm:w-auto sm:hidden" @click="confirmLogout">
-                    <LogOut class="w-4 h-4" />
-                    Đăng xuất
-                </button>
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-6">
                 <button class="btn btn-primary w-full sm:w-auto" @click="saveProfile" :disabled="loading">
                     <Save v-if="!loading" class="w-4 h-4" />
                     <span v-if="!loading">Lưu thay đổi</span>
@@ -160,23 +156,18 @@
                 </button>
             </div>
 
-            <ConfirmModal ref="logoutConfirm" title="Xác nhận đăng xuất"
-                message="Bạn có chắc muốn đăng xuất khỏi tài khoản không?" actions="Đăng xuất" type="error"
-                @confirm="handleLogout" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/authStore'
-import { Save, LogOut, CircleX } from 'lucide-vue-next'
+import { Save, CircleX } from 'lucide-vue-next'
 import { supabase } from '../../lib/supabaseClient'
 import { storeToRefs } from 'pinia'
 import { push } from 'notivue'
 import { useHead } from '@vueuse/head'
-import ConfirmModal from '../../components/common/ConfirmModal.vue'
 
 useHead({
     title: 'Hồ sơ | Task Wan',
@@ -186,11 +177,9 @@ useHead({
     ],
 })
 
-const router = useRouter()
 const authStore = useAuthStore()
 const { user, profile } = storeToRefs(authStore)
 
-const logoutConfirm = ref<InstanceType<typeof ConfirmModal> | null>(null)
 const fullName = ref('')
 const email = ref('')
 const photoUrl = ref<string | null>(null)
@@ -230,9 +219,6 @@ async function changePassword() {
     }
 }
 
-function confirmLogout() {
-    logoutConfirm.value?.open()
-}
 
 async function uploadPhoto() {
     if (!user.value) return
@@ -283,8 +269,15 @@ async function removePhoto() {
     }
 }
 
-function toggleEmailEdit() {
-    isEditingEmail.value = !isEditingEmail.value
+async function toggleEmailEdit() {
+    if (isEditingEmail.value) {
+        // Đang ở chế độ chỉnh sửa, nhấn để lưu
+        await saveProfile()
+        isEditingEmail.value = false
+    } else {
+        // Chuyển sang chế độ chỉnh sửa
+        isEditingEmail.value = true
+    }
 }
 
 async function setup2FA() {
@@ -386,10 +379,6 @@ function copyToClipboard(text: string) {
         .catch(() => push.error('Sao chép thất bại!'))
 }
 
-function handleLogout() {
-    authStore.logout()
-    router.push('/login')
-}
 
 onMounted(async () => {
     if (!authStore.user) await authStore.fetchUser()

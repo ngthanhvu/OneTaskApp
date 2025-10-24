@@ -6,7 +6,7 @@
         </div>
         <main class="flex-1 px-3 pb-16 md:pb-0">
             <Navbar />
-            <div class="p-5">
+            <div>
                 <router-view />
             </div>
         </main>

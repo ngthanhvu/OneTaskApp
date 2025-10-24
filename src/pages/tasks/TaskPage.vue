@@ -1,5 +1,5 @@
 <template>
-    <div class="mx-auto space-y-6 md:space-y-10">
+    <div class="mx-auto space-y-6 md:space-y-10 p-3">
         <!-- Mobile Header -->
         <div class="md:hidden space-y-4">
             <div class="flex items-center justify-between">
@@ -246,29 +246,6 @@ function normalizeDateString(input: unknown): string | null {
     if (isNaN(parsed.getTime())) return null
     return toYmdLocal(parsed)
 }
-
-// const filteredTasks = computed(() => {
-//     const list = tasksStore.tasks as unknown as Task[]
-//     if (filter.value === 'today') {
-//         return list.filter(t => {
-//             const due = normalizeDateString((t as any).due_at ?? t.date)
-//             return due === today
-//         })
-//     }
-//     if (filter.value === 'done') return list.filter(t => t.done)
-//     if (filter.value === 'todo') return list.filter(t => !t.done)
-//     if (filter.value === 'overdue') {
-//         const todayYmd = toYmdLocal(new Date())
-//         return list.filter(t => {
-//             const due = normalizeDateString((t as any).due_at ?? t.date)
-//             return !t.done && due && due < todayYmd
-//         })
-//     }
-//     return list
-// })
-// const backlog = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 0))
-// const inProgress = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 1))
-// const doneList = computed(() => filteredTasks.value.filter(t => (t.status ?? 0) === 2))
 
 // Calendar functionality
 const weekDays = computed(() => {

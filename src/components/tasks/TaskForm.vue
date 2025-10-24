@@ -20,13 +20,6 @@
                 <input v-model="dueDate" type="date" class="input input-bordered w-full focus:outline-none focus:ring-1 focus:ring-primary mt-2" />
             </div>
             <div class="form-control">
-                <label class="label"><span class="label-text">Giờ hết hạn <small>(tuỳ chọn)</small></span></label>
-                <input v-model="dueTime" type="time" class="input input-bordered w-full focus:outline-none focus:ring-1 focus:ring-primary mt-2" />
-                <label class="label">
-                    <small>Nếu chọn giờ, hệ thống sẽ lưu thời hạn đầy đủ (due_at)</small>
-                </label>
-            </div>
-            <div class="form-control">
                 <label class="label"><span class="label-text">Trạng thái <span class="text-red-500">*</span></span></label>
                 <select v-model="form.done" class="select select-bordered w-full focus:outline-none focus:ring-1 focus:ring-primary mt-2">
                     <option :value="false">Chưa xong</option>
@@ -81,13 +74,9 @@ const form = reactive({
 
 const tagsInput = ref<string>(Array.isArray(form.tags) ? form.tags.join(', ') : '')
 const dueDate = ref<string>('')
-const dueTime = ref<string>('')
 if (form.due_at) {
     const d = new Date(form.due_at)
     dueDate.value = d.toLocaleDateString('en-CA')
-    const hh = String(d.getHours()).padStart(2, '0')
-    const mm = String(d.getMinutes()).padStart(2, '0')
-    dueTime.value = `${hh}:${mm}`
 }
 
 watchEffect(() => {
@@ -98,13 +87,11 @@ watchEffect(() => {
 })
 
 function submitForm() {
-    // Build due_at from date + dueTime (local timezone)
+    // Build due_at from date only (local timezone)
     let dueAt: string | null = null
-    if (dueDate.value || dueTime.value) {
-        const base = dueDate.value || form.date
-        const [hh, mm] = (dueTime.value || '09:00').split(':')
-        const local = new Date(base)
-        local.setHours(Number(hh), Number(mm), 0, 0)
+    if (dueDate.value) {
+        const local = new Date(dueDate.value)
+        local.setHours(23, 59, 0, 0) // Set to end of day
         dueAt = local.toISOString()
     }
 

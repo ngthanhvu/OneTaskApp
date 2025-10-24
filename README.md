@@ -64,11 +64,15 @@ This will compile and minify the application into the `dist` directory, ready fo
 
 ```
 task-wan
+├─ database
+│  ├─ db.sql
+│  └─ supabase.sql
 ├─ index.html
 ├─ package.json
 ├─ public
 │  ├─ app.png
 │  ├─ image.png
+│  ├─ logo-app.png
 │  └─ vite.svg
 ├─ README.md
 ├─ src
@@ -76,10 +80,16 @@ task-wan
 │  ├─ assets
 │  │  └─ vue.svg
 │  ├─ components
+│  │  ├─ charts
+│  │  │  ├─ TaskPieChart.vue
+│  │  │  └─ TaskStatsChart.vue
 │  │  ├─ common
 │  │  │  └─ ConfirmModal.vue
 │  │  ├─ Navbar.vue
+│  │  ├─ notifications
+│  │  │  └─ NotificationSettings.vue
 │  │  ├─ Sidebar.vue
+│  │  ├─ SplashScreen.vue
 │  │  ├─ tasks
 │  │  │  ├─ TaskFilterBar.vue
 │  │  │  ├─ TaskForm.vue
@@ -91,6 +101,8 @@ task-wan
 │  │     └─ Modal.vue
 │  ├─ composables
 │  │  ├─ useAuthApi.ts
+│  │  ├─ useNotifications.ts
+│  │  ├─ useNotificationsApi.ts
 │  │  └─ useTasksApi.ts
 │  ├─ layouts
 │  │  └─ MainLayout.vue
@@ -99,15 +111,23 @@ task-wan
 │  ├─ main.ts
 │  ├─ pages
 │  │  ├─ auth
+│  │  │  ├─ Forgot.vue
 │  │  │  ├─ Login.vue
-│  │  │  └─ Profile.vue
+│  │  │  ├─ Profile.vue
+│  │  │  └─ Reset.vue
+│  │  ├─ Calendar.vue
 │  │  ├─ Home.vue
+│  │  ├─ NotFound.vue
+│  │  ├─ notifications
+│  │  │  └─ NotificationsPage.vue
 │  │  └─ tasks
 │  │     ├─ TaskDetail.vue
 │  │     ├─ TaskPage.vue
 │  │     └─ TaskToday.vue
 │  ├─ router
 │  │  └─ index.ts
+│  ├─ services
+│  │  └─ notificationService.ts
 │  ├─ stores
 │  │  ├─ authStore.ts
 │  │  └─ tasksStore.ts

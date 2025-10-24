@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-base-200 py-4 px-4">
+    <div class="bg-base-200 py-4 px-4 p-3">
         <div class="mx-auto">
             <!-- Header -->
             <div class="mb-6">
@@ -63,7 +63,7 @@
                 <!-- Right Column: Security Settings -->
                 <div class="lg:col-span-2">
                     <div class="card bg-base-100 shadow-md border border-base-300">
-                        <div class="card-body">
+                        <div class="p-4 sm:p-6 md:card-body">
                             <h2 class="card-title text-lg mb-6">Bảo mật tài khoản</h2>
 
                             <!-- 2FA Section -->

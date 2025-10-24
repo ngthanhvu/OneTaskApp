@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-3xl mx-auto p-3 sm:p-4">
         <div class="flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold">Công việc hôm nay</h1>
             <span class="badge badge-primary badge-outline">{{ today }}</span>

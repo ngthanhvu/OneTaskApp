@@ -1,5 +1,5 @@
 <template>
-    <div class="mx-auto space-y-6 md:space-y-10">
+    <div class="mx-auto space-y-6 md:space-y-10 p-3">
         <!-- Mobile Header -->
         <div class="md:hidden space-y-4">
             
@@ -418,7 +418,7 @@ onMounted(async () => {
     border-color: hsl(var(--in));
     /* info */
     background-color: color-mix(in oklab, hsl(var(--in)) 15%, transparent);
-    color: #605DFF;
+    color: #81aacc;
 }
 
 :deep(.vc-highlight-bg-solid) {

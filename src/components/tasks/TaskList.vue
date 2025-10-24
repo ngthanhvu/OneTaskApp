@@ -5,7 +5,7 @@
             v-model="localTasks" 
             item-key="id" 
             @end="onDragEnd" 
-            class="grid grid-cols-1 gap-3"
+            class="space-y-3"
             :animation="200"
             :ghost-class="'opacity-50'"
             :chosen-class="'scale-105'"
@@ -19,7 +19,7 @@
             </template>
         </draggable>
 
-        <div v-else class="grid grid-cols-1 gap-3">
+        <div v-else class="space-y-3">
             <TaskItem v-for="task in tasks" :key="task.id" :task="task" @edit="$emit('edit', task)"
                 @delete="$emit('delete', task)" @view="$emit('view', task)" @update="$emit('update', $event)"
                 @status-change="$emit('status-change', $event)" />

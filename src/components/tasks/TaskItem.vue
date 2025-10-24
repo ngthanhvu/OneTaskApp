@@ -12,23 +12,21 @@
         </div>
 
         <!-- Nội dung chính -->
-        <div>
-            <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="truncate font-medium max-w-[12rem] sm:max-w-[16rem]"
+        <div class="flex-1">
+            <div class="flex items-start justify-between gap-2 sm:gap-3">
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-1 sm:gap-2 mb-2">
+                        <span class="truncate font-medium text-sm sm:text-base max-w-[10rem] sm:max-w-[16rem]"
                             :class="{ 'line-through text-base-content/50': local.done }">
                             {{ local.title }}
                         </span>
-                        <span class="badge badge-ghost badge-sm shrink-0">{{ local.date }}</span>
                         <span class="badge badge-sm shrink-0" :class="local.done ? 'badge-success' : 'badge-warning'">
                             {{ local.done ? 'Đã xong' : 'Chưa xong' }}
                         </span>
 
                         <!-- Badge trạng thái ngày -->
                         <span v-if="isOverdue" class="badge badge-error badge-outline badge-sm shrink-0">Quá hạn</span>
-                        <span v-else-if="isToday" class="badge badge-warning badge-outline badge-sm shrink-0">Hôm
-                            nay</span>
+                        <span v-else-if="isToday" class="badge badge-warning badge-outline badge-sm shrink-0">Hôm nay</span>
 
                         <span v-if="local.status" class="badge badge-outline badge-sm shrink-0">{{ statusLabel }}</span>
                         <span v-if="local.priority" class="badge badge-sm shrink-0" :class="priorityClass">
@@ -36,14 +34,14 @@
                         </span>
                     </div>
 
-                    <p class="text-sm text-base-content/60 mt-1 line-clamp-2">
+                    <p class="text-xs sm:text-sm text-base-content/60 line-clamp-2 mb-2">
                         {{ descriptionPreview }}
                     </p>
-                </div>
 
-                <!-- Tags -->
-                <div v-if="Array.isArray(local.tags) && local.tags.length" class="mt-2 flex flex-wrap gap-1">
-                    <span v-for="tag in local.tags" :key="tag" class="badge badge-ghost badge-xs">#{{ tag }}</span>
+                    <!-- Tags -->
+                    <div v-if="Array.isArray(local.tags) && local.tags.length" class="flex flex-wrap gap-1">
+                        <span v-for="tag in local.tags" :key="tag" class="badge badge-ghost badge-xs">#{{ tag }}</span>
+                    </div>
                 </div>
 
                 <!-- Nút sửa / xoá -->
@@ -58,9 +56,9 @@
             </div>
 
             <!-- Chọn trạng thái -->
-            <div v-if="local.status != null" class="mt-3 flex items-center gap-2">
+            <div v-if="local.status != null" class="mt-2 sm:mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
                 <span class="text-xs text-base-content/60">Trạng thái:</span>
-                <div class="flex gap-1">
+                <div class="flex gap-1 flex-wrap">
                     <button class="btn btn-xs" :class="local.status === 0 ? 'btn-primary' : 'btn-outline'"
                         @click="changeStatus(0)">
                         Chưa làm
@@ -78,12 +76,12 @@
         </div>
 
         <!-- Footer -->
-        <div class="mt-3 flex items-center justify-between">
+        <div class="mt-2 sm:mt-3 flex items-center justify-between gap-2">
             <button class="btn btn-ghost btn-xs gap-1" @click="$emit('view', local)">
                 <FileText class="w-3 h-3" /> Xem
             </button>
             <label class="label cursor-pointer gap-2">
-                <span class="label-text text-sm">{{ local.done ? 'Đã xong' : 'Chưa xong' }}</span>
+                <span class="label-text text-xs sm:text-sm">{{ local.done ? 'Đã xong' : 'Chưa xong' }}</span>
                 <input type="checkbox" v-model="local.done" class="toggle toggle-primary toggle-sm"
                     @change="onDoneToggled" />
             </label>
@@ -149,7 +147,7 @@ const priorityClass = computed(() =>
             : 'badge-info'
 )
 
-const baseContainerClasses = 'group p-4 rounded-xl bg-base-100/80 shadow-sm hover:shadow-md border border-base-200 hover:border-base-300 flex flex-col justify-between min-h-[12rem] sm:min-h-[13rem] max-h-[auto] cursor-move relative transition-colors duration-300'
+const baseContainerClasses = 'group p-3 sm:p-4 rounded-xl bg-base-100/80 shadow-sm hover:shadow-md border border-base-200 hover:border-base-300 flex flex-col justify-between min-h-[10rem] sm:min-h-[12rem] max-h-[auto] cursor-move relative transition-colors duration-300'
 
 function toYmdLocal(date: Date): string {
     return date.toLocaleDateString('en-CA')

@@ -1,5 +1,6 @@
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+    <!-- Mobile Layout -->
+    <div class="md:hidden min-h-screen flex items-center justify-center bg-base-200 px-4">
         <div class="card w-full max-w-md bg-base-100 shadow-xl rounded-2xl p-6 sm:p-8">
             <!-- Header -->
             <h2 class="text-3xl font-bold text-center mb-8">
@@ -11,7 +12,7 @@
                 <!-- Email -->
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text font-semibold">Email</span>
+                        <span class="label-text font-semibold text-sm mb-1">Email</span>
                     </label>
                     <div class="relative">
                         <Mail class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
@@ -24,7 +25,7 @@
                 <!-- Password -->
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text font-semibold">Password</span>
+                        <span class="label-text font-semibold text-sm mb-1">Mật khẩu</span>
                     </label>
                     <div class="relative">
                         <KeyRound class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
@@ -37,9 +38,10 @@
                     <div class="flex justify-between items-center mt-3 text-sm">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" v-model="remember" class="checkbox checkbox-sm" />
-                            <span>Remember me</span>
+                            <span>Ghi nhớ tôi</span>
                         </label>
-                        <router-link to="/forgot-password" class="text-primary hover:underline">Forgot password?</router-link>
+                        <router-link to="/forgot-password" class="text-primary hover:underline">Quên
+                            mật khẩu?</router-link>
                     </div>
                 </div>
 
@@ -47,7 +49,7 @@
                 <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2"
                     :disabled="loading">
                     <LogIn v-if="!loading" class="w-5 h-5" />
-                    <span v-if="!loading">Login</span>
+                    <span v-if="!loading">Đăng nhập</span>
                     <span v-else class="loading loading-spinner loading-sm"></span>
                 </button>
 
@@ -61,31 +63,31 @@
             <form v-else @submit.prevent="verifyMfa" class="space-y-4">
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text font-semibold">Two‑factor code</span>
+                        <span class="label-text font-semibold">Mã xác minh 2 bước</span>
                     </label>
                     <input v-model="otp" inputmode="numeric" pattern="[0-9]*" maxlength="6"
-                        placeholder="Enter 6‑digit code" class="input input-bordered w-full text-center tracking-widest"
+                        placeholder="Nhập mã 6 chữ số" class="input input-bordered w-full text-center tracking-widest"
                         :class="{ 'input-error': mfaError }" />
                     <p v-if="mfaError" class="text-error text-sm mt-1">{{ mfaError }}</p>
                     <p class="text-xs text-base-content/70 mt-2">
-                        Open your authenticator app and enter the current 6‑digit code.
+                        Mở ứng dụng xác thực của bạn và nhập mã 6 chữ số hiện tại.
                     </p>
                 </div>
 
                 <div class="flex items-center gap-2 text-sm">
                     <input id="rememberDevice" type="checkbox" v-model="rememberDevice" class="checkbox checkbox-sm" />
-                    <label for="rememberDevice" class="cursor-pointer">Remember this device for 30 days</label>
+                    <label for="rememberDevice" class="cursor-pointer">Ghi nhớ thiết bị này trong 30 ngày</label>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2"
                     :disabled="loading || otp.length !== 6">
                     <LogIn v-if="!loading" class="w-5 h-5" />
-                    <span v-if="!loading">Verify & Continue</span>
+                    <span v-if="!loading">Xác minh & Tiếp tục</span>
                     <span v-else class="loading loading-spinner loading-sm"></span>
                 </button>
 
                 <button type="button" class="btn btn-ghost btn-sm w-full" @click="cancelMfa" :disabled="loading">
-                    Back to login
+                    Quay lại đăng nhập
                 </button>
 
                 <p v-if="globalError" class="text-error text-center text-sm mt-2">
@@ -97,6 +99,142 @@
             <p class="text-center text-sm mt-8 text-base-content/70">
                 © {{ new Date().getFullYear() }} Task Wan. All rights reserved.
             </p>
+        </div>
+    </div>
+
+    <!-- Desktop Layout -->
+    <div class="hidden md:flex min-h-screen">
+        <!-- Left Side - Primary Gradient Background -->
+        <div class="flex-1 bg-primary via-primary-focus to-primary-content relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute inset-0">
+                <!-- Wave patterns -->
+                <div class="absolute top-10 left-10 w-32 h-32 border-2 border-base-100/20 rounded-full"></div>
+                <div class="absolute top-20 right-20 w-20 h-20 border border-base-100/30 rounded-full"></div>
+                <div class="absolute bottom-20 left-20 w-16 h-16 bg-base-100/10 rounded-full"></div>
+                <div class="absolute bottom-32 right-32 w-24 h-24 border border-base-100/20 rounded-full"></div>
+
+                <!-- Geometric shapes -->
+                <div class="absolute top-32 left-32 w-8 h-8 border-2 border-base-100/40 rotate-45"></div>
+                <div class="absolute top-40 right-40 w-6 h-6 bg-base-100/20 rounded-full"></div>
+                <div class="absolute bottom-40 left-40 w-4 h-4 bg-base-100/30 rounded-full"></div>
+
+                <!-- Grid pattern -->
+                <div class="absolute top-20 right-10 w-12 h-12 grid grid-cols-3 gap-1">
+                    <div class="w-2 h-2 bg-base-100/20 rounded-full"></div>
+                    <div class="w-2 h-2 bg-base-100/30 rounded-full"></div>
+                    <div class="w-2 h-2 bg-base-100/20 rounded-full"></div>
+                    <div class="w-2 h-2 bg-base-100/30 rounded-full"></div>
+                    <div class="w-2 h-2 bg-base-100/20 rounded-full"></div>
+                    <div class="w-2 h-2 bg-base-100/30 rounded-full"></div>
+                    <div class="w-2 h-2 bg-base-100/20 rounded-full"></div>
+                    <div class="w-2 h-2 bg-base-100/30 rounded-full"></div>
+                    <div class="w-2 h-2 bg-base-100/20 rounded-full"></div>
+                </div>
+            </div>
+
+            <!-- Welcome Content -->
+            <div class="relative z-10 flex flex-col justify-center items-center h-full text-base-100 px-12">
+                <h1 class="text-4xl font-bold mb-4 text-center">Chào mừng quay trở lại!</h1>
+                <p class="text-xl text-base-100/90 text-center max-w-md">
+                    Bạn có thể đăng nhập để truy cập bằng tài khoản hiện có của mình.
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="flex-1 bg-base-100 flex items-center justify-center p-8">
+            <div class="w-full max-w-md">
+                <!-- Header -->
+                <h2 class="text-3xl font-bold text-base-content mb-8 text-center">Đăng nhập</h2>
+
+                <!-- Form: Step 1 - Email & Password -->
+                <form v-if="!mfaRequired" @submit.prevent="handleLogin" class="space-y-6">
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-base-content mb-2">Email</label>
+                        <div class="relative">
+                            <Mail class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
+                            <input v-model="email" type="email" placeholder="Username or email"
+                                class="input input-bordered w-full pl-10 focus:ring-2 focus:ring-primary focus:border-primary"
+                                :class="{ 'input-error': emailError }" />
+                        </div>
+                        <p v-if="emailError" class="text-error text-sm mt-1">{{ emailError }}</p>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-base-content mb-2">Mật khẩu</label>
+                        <div class="relative">
+                            <KeyRound class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
+                            <input v-model="password" type="password" placeholder="Password"
+                                class="input input-bordered w-full pl-10 focus:ring-2 focus:ring-primary focus:border-primary"
+                                :class="{ 'input-error': passwordError }" />
+                        </div>
+                        <p v-if="passwordError" class="text-error text-sm mt-1">{{ passwordError }}</p>
+                    </div>
+
+                    <!-- Remember + Forgot -->
+                    <div class="flex justify-between items-center text-sm">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" v-model="remember" class="checkbox checkbox-sm checkbox-primary" />
+                            <span class="text-base-content">Ghi nhớ tôi</span>
+                        </label>
+                        <router-link to="/forgot-password"
+                            class="text-primary hover:text-primary-focus font-medium">Quên mật khẩu?</router-link>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2"
+                        :disabled="loading">
+                        <LogIn v-if="!loading" class="w-5 h-5" />
+                        <span v-if="!loading">Đăng nhập</span>
+                        <span v-else class="loading loading-spinner loading-sm"></span>
+                    </button>
+
+                    <!-- Global error -->
+                    <p v-if="globalError" class="text-error text-center text-sm">
+                        {{ globalError }}
+                    </p>
+                </form>
+
+                <!-- Form: Step 2 - MFA TOTP -->
+                <form v-else @submit.prevent="verifyMfa" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-base-content mb-2">Mã xác minh 2 bước</label>
+                        <input v-model="otp" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                            placeholder="Nhập mã 6 chữ số"
+                            class="input input-bordered w-full text-center tracking-widest focus:ring-2 focus:ring-primary focus:border-primary"
+                            :class="{ 'input-error': mfaError }" />
+                        <p v-if="mfaError" class="text-error text-sm mt-1">{{ mfaError }}</p>
+                        <p class="text-xs text-base-content/70 mt-2">
+                            Mở ứng dụng xác thực của bạn và nhập mã 6 chữ số hiện tại.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-sm">
+                        <input id="rememberDevice" type="checkbox" v-model="rememberDevice"
+                            class="checkbox checkbox-sm checkbox-primary" />
+                        <label for="rememberDevice" class="text-base-content cursor-pointer">Ghi nhớ thiết bị này trong 30
+                            ngày</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2"
+                        :disabled="loading || otp.length !== 6">
+                        <LogIn v-if="!loading" class="w-5 h-5" />
+                        <span v-if="!loading">Xác minh & Tiếp tục</span>
+                        <span v-else class="loading loading-spinner loading-sm"></span>
+                    </button>
+
+                    <button type="button" class="btn btn-ghost w-full" @click="cancelMfa" :disabled="loading">
+                        Quay lại đăng nhập
+                    </button>
+
+                    <p v-if="globalError" class="text-error text-center text-sm">
+                        {{ globalError }}
+                    </p>
+                </form>
+            </div>
         </div>
     </div>
 </template>
@@ -112,7 +250,7 @@ import { useHead } from '@vueuse/head'
 import { supabase } from '../../lib/supabaseClient'
 
 useHead({
-    title: 'Login | Task Wan',
+    title: 'Đăng nhập | Task Wan',
     meta: [
         { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
         { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },

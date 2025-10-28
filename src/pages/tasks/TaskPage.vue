@@ -68,7 +68,7 @@
 
 
         <!-- Mobile Kanban - Vertical Stack -->
-        <div class="md:hidden space-y-4">
+        <div class="md:hidden space-y-4 mb-20">
             <div class="space-y-3">
                 <div class="flex items-center justify-between gap-2 bg-base-200 rounded-lg p-3">
                     <h3 class="font-semibold text-sm">Chưa làm</h3>

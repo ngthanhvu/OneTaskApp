@@ -292,7 +292,7 @@
                 </div>
 
                 <!-- Recent Tasks -->
-                <div class="bg-base-100 rounded-xl shadow-sm border border-base-300">
+                <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 mb-15">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold text-base-content mb-4">Gần đây</h3>
                         <div class="space-y-3">
@@ -412,7 +412,7 @@ interface Task {
 }
 
 useHead({
-    title: 'Dashboard | Task Wan',
+    title: 'Bảng điều khiển | Task Wan',
     meta: [
         { name: 'description', content: 'Quản lý công việc hiệu quả với Task Wan' },
         { name: 'keywords', content: 'Task, Quản lý công việc, To do list' },

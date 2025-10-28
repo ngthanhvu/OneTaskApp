@@ -65,5 +65,8 @@ export default defineConfig({
         ]
       }
     })
-  ]
+  ],
+  server: {
+    allowedHosts: ['proria.devgang.online'] 
+  }
 })

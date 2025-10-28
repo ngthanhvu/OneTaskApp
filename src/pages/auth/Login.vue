@@ -44,6 +44,10 @@
                             mật khẩu?</router-link>
                     </div>
                 </div>
+                <!-- Cloudflare Turnstile -->
+                <div class="flex justify-center">
+                    <Turnstile @verified="onCaptchaVerified" :dark="true" />
+                </div>
 
                 <!-- Submit -->
                 <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2"
@@ -166,7 +170,8 @@
                     <div>
                         <label class="block text-sm font-medium text-base-content mb-2">Mật khẩu</label>
                         <div class="relative">
-                            <KeyRound class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
+                            <KeyRound
+                                class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10" />
                             <input v-model="password" type="password" placeholder="Password"
                                 class="input input-bordered w-full pl-10 focus:ring-2 focus:ring-primary focus:border-primary"
                                 :class="{ 'input-error': passwordError }" />
@@ -182,6 +187,11 @@
                         </label>
                         <router-link to="/forgot-password"
                             class="text-primary hover:text-primary-focus font-medium">Quên mật khẩu?</router-link>
+                    </div>
+
+                    <!-- Cloudflare Turnstile -->
+                    <div class="flex">
+                        <Turnstile @verified="onCaptchaVerified" :dark="true" />
                     </div>
 
                     <!-- Submit -->
@@ -215,7 +225,8 @@
                     <div class="flex items-center gap-2 text-sm">
                         <input id="rememberDevice" type="checkbox" v-model="rememberDevice"
                             class="checkbox checkbox-sm checkbox-primary" />
-                        <label for="rememberDevice" class="text-base-content cursor-pointer">Ghi nhớ thiết bị này trong 30
+                        <label for="rememberDevice" class="text-base-content cursor-pointer">Ghi nhớ thiết bị này trong
+                            30
                             ngày</label>
                     </div>
 
@@ -247,7 +258,8 @@ import { useAuthStore } from '../../stores/authStore'
 import { storeToRefs } from 'pinia'
 import { push } from 'notivue'
 import { useHead } from '@vueuse/head'
-import { supabase } from '../../lib/supabaseClient'
+import { supabase } from '../../lib/supabaseClient';
+import Turnstile from '../../components/Turnstile.vue';
 
 useHead({
     title: 'Đăng nhập | Task Wan',
@@ -272,6 +284,12 @@ const mfaChallengeId = ref<string | null>(null)
 const rememberDevice = ref(false)
 
 const TRUSTED_DEVICE_KEY = 'tw_trusted_device_until'
+
+const captchaToken = ref<string | null>(null)
+
+const onCaptchaVerified = (token: string) => {
+    captchaToken.value = token
+}
 
 function getTrustedDeviceValid() {
     const until = localStorage.getItem(TRUSTED_DEVICE_KEY)
@@ -311,7 +329,32 @@ async function handleLogin() {
         return
     }
 
-    // Remember login
+    if (!captchaToken.value) {
+        push.error({ title: 'Captcha chưa được xác minh', message: 'Vui lòng xác nhận bạn không phải robot.' })
+        return
+    }
+
+    try {
+        const verifyRes = await fetch(`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/verify-turnstile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                token: captchaToken.value,
+            }),
+        })
+
+        const verifyData = await verifyRes.json()
+        if (!verifyData.ok) {
+            push.error({ title: 'Xác minh thất bại', message: 'Captcha không hợp lệ hoặc đã hết hạn.' })
+            return
+        }
+    } catch (err) {
+        push.error({ title: 'Lỗi xác minh', message: 'Không thể xác minh Captcha.' })
+        return
+    }
+
     if (remember.value) {
         localStorage.setItem('email', email.value)
         localStorage.setItem('password', password.value)

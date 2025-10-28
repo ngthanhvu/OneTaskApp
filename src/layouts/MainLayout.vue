@@ -4,7 +4,7 @@
         <div class="hidden md:block">
             <Sidebar />
         </div>
-        <main class="flex-1 px-3 pb-16 md:pb-0">
+        <main class="flex-1">
             <Navbar />
             <div>
                 <router-view />

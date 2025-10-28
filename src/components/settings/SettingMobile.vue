@@ -1,10 +1,5 @@
 <template>
     <div class="mx-auto bg-base-100 flex flex-col">
-        <!-- Header -->
-        <div class="px-4 py-6 border-b border-base-300">
-            <h1 class="text-xl font-semibold text-base-content">Cài đặt</h1>
-        </div>
-
         <!-- Scrollable Content -->
         <div class="flex-1 overflow-y-auto">
             <!-- Settings Section -->

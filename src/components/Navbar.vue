@@ -6,7 +6,12 @@
                 <p class="text-[12px]">Hôm nay là <span class="font-medium">{{ todayFormatted }}</span></p>
             </div>
             <div class="form-control hidden md:flex">
-                <input type="text" placeholder="Search..." class="input input-bordered w-60" v-model="search" />
+                <label class="input focus:outline-none focus:ring-1 focus:ring-primary">
+                    <Search />
+                    <input type="search" class="grow" v-model="search" placeholder="Search" />
+                    <kbd class="kbd kbd-sm">⌘</kbd>
+                    <kbd class="kbd kbd-sm">K</kbd>
+                </label>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -23,7 +28,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { Sun, Moon, BellRing } from 'lucide-vue-next'
+import { Sun, Moon, BellRing, Search } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore';
 import { storeToRefs } from 'pinia';
 
